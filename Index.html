@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head> 
+  <meta charset="UTF-8"> 
+  <title>PDI</title>
+  <link rel='stylesheet' href='style.css'/>
+  <link rel="shortcut icon" href="http://www.rw-designer.com/icon-view/21516.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" >
+  </head>
+  <body>
+    <!-- Menu -->
+    <div class="navbar">
+      <div class="subnav">
+        <button class="subnavbtn"> Cargar Imagenes <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+            <a>
+              Imagen 1
+              <input type="file" id="imagen1" accept=".jpg,.jpeg,.png" multiple>
+            </a>            
+            <a>
+              Imagen 2
+              <input type="file" id="imagen2" accept=".jpg,.jpeg,.png" multiple>
+            </a>
+        </div>
+      </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Codigos <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="escalaGris();return false;">Escala de girses</a>
+          <a href="#team">Team</a>
+          <a href="#careers">Careers</a>
+        </div>
+      </div>
+      <div class="subnav">
+        <!--Submenu para los codigos de separa los colores-->
+        <button class="subnavbtn"> Separar colores <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="seleccionColor(1);return false;">Rojo</a>
+          <a href="#" onclick="seleccionColor(2);return false;">Verde</a>
+          <a href="#" onclick="seleccionColor(3);return false;">Azul</a>
+        </div>
+      </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Histogramas <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="mostrarHistogramaGris();return false;">Mostrar histograma grises</a>
+          <a href="#" >Mostrar histograma color</a>
+          <a href="#" onclick="moverHistograma();return false;">Mover histograma</a>
+          <a href="#express">Express</a>
+        </div>
+      </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Bordes <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#link1">Link 1</a>
+          <a href="#link2">Link 2</a>
+          <a href="#link3">Link 3</a>
+          <a href="#link4">Link 4</a>
+        </div>
+      </div>
+    </div>
+    <!-- Comienza el cuerpo de la pagina-->
+    <div class="img-wrap" > 
+      <!--Imagenes que ingresa el usuario-->
+      <canvas id ="canvas1" class="responsive"  ></canvas>
+      <canvas id ="canvas2" class="responsive"  ></canvas>
+    </div>
+    <div  id="configuracion" class="img-wrap"></div>
+    <div class="img-wrap" > 
+      <!-- Imagenes resultado del procesamiento-->
+      <canvas id ="canvas3" class="responsive"  ></canvas>
+      <canvas id ="canvas4" class="responsive"  ></canvas>
+    </div>
+
+    <script type="text/javascript" src="PDI.js"></script>
+  </body>
+</html>
