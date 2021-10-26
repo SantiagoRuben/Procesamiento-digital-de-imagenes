@@ -11,6 +11,7 @@
     <!-- Menu -->
     <div class="navbar">
       <div class="subnav">
+        <!--Submenu para seleccionar las imagenes-->
         <button class="subnavbtn"> Cargar Imagenes <i class="fa fa-caret-down"></i></button>
         <div class="subnav-content">
             <a>
@@ -24,11 +25,26 @@
         </div>
       </div>
       <div class="subnav">
+        <!-- Submenu para elegir los colores para colorear y gradiente-->
+        <button class="subnavbtn"> Elegir colores <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+            <a>
+              Color 1
+              <input type="color" id="color1" value="#000000">
+            </a>            
+            <a>
+              Color 2
+              <input type="color" id="color2" value="#ffffff">
+            </a>
+        </div>
+      </div>
+      <div class="subnav">
         <button class="subnavbtn"> Codigos <i class="fa fa-caret-down"></i></button>
         <div class="subnav-content">
           <a href="#" onclick="escalaGris();return false;">Escala de girses</a>
-          <a href="#team">Team</a>
-          <a href="#careers">Careers</a>
+          <a href="#" onclick="negativo();return false;">Negativo</a>
+          <a href="#" onclick="colorear();return false;"> Colorear</a>
+          <a href="#" onclick="gradiente();return false;"> Gradiente</a>
         </div>
       </div>
       <div class="subnav">
@@ -41,10 +57,19 @@
         </div>
       </div>
       <div class="subnav">
+        <!--Submenu para los codigos de operadores logicos-->
+        <button class="subnavbtn"> Operadores logicos <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="operadorLogico(1);return false;">And</a>
+          <a href="#" onclick="operadorLogico(2);return false;">Or</a>
+          <a href="#" onclick="operadorLogico(3);return false;">Xor</a>
+        </div>
+      </div>
+      <div class="subnav">
         <button class="subnavbtn"> Histogramas <i class="fa fa-caret-down"></i></button>
         <div class="subnav-content">
           <a href="#" onclick="mostrarHistogramaGris();return false;">Mostrar histograma grises</a>
-          <a href="#" >Mostrar histograma color</a>
+          <a href="#" onclick="mostrarHistogramaColor();return false;">Mostrar histograma color</a>
           <a href="#" onclick="moverHistograma();return false;">Mover histograma</a>
           <a href="#express">Express</a>
         </div>
@@ -58,17 +83,25 @@
           <a href="#link4">Link 4</a>
         </div>
       </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Escala <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="reducir(2);return false;">1/2</a>
+          <a href="#" onclick="reducir(4);return false;">1/4</a>
+          <a href="#" onclick="reducir(8);return false;">1/8</a>
+        </div>
+      </div>
     </div>
     <!-- Comienza el cuerpo de la pagina-->
     <div class="img-wrap" > 
       <!--Imagenes que ingresa el usuario-->
-      <canvas id ="canvas1" class="responsive"  ></canvas>
+      <canvas id ="canvas1"   class="responsive" ></canvas>
       <canvas id ="canvas2" class="responsive"  ></canvas>
     </div>
     <div  id="configuracion" class="img-wrap"></div>
     <div class="img-wrap" > 
       <!-- Imagenes resultado del procesamiento-->
-      <canvas id ="canvas3" class="responsive"  ></canvas>
+      <canvas id ="canvas3"   class="responsive"  ></canvas>
       <canvas id ="canvas4" class="responsive"  ></canvas>
     </div>
 
