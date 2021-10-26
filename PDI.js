@@ -5,7 +5,9 @@ var image3 = new Image();
 /* Variables para obtener informacion de las imagenes */
 var pixeles;
 var numPixeles;
-var contIntensidad = Array(256);
+var contIntensidad = Array(256); 
+var contIntensidadG = Array(256);
+var contIntensidadB = Array(256);
 var valorActual, valorMaximo;
 /* div para agregar configuraciones extras */
 var configuracion = document.getElementById("configuracion");
@@ -29,6 +31,13 @@ var context3 = canvas3.getContext( '2d' );
 var canvas4 = document.getElementById('canvas4');
 var context4 = canvas4.getContext( '2d' );
 
+/* Recuperamos los colores elegidos */
+var R1=0,G1=0,B1=0;
+var R2=255,G2=255,B2=255;
+var color1 = document.getElementById('color1');
+color1.addEventListener('change', actualizarColor1); 
+var color2 = document.getElementById('color2');
+color2.addEventListener('change', actualizarColor2); 
 /*Funciones para el cargado de imagenes */
 function CargarImagen1(){
     limpiarResultado();
@@ -50,7 +59,51 @@ function CargarImagen2(){
         context2.drawImage( image2, 0, 0 );
     }
 }
-
+/* funciones para tomar los colores elegidos  */
+function letra(letra){
+    if(letra=='0')
+        return 0;
+    if(letra=='1')
+        return 1;
+    if(letra=='2')
+        return 2;
+    if(letra=='3')
+        return 3;
+    if(letra=='4')
+        return 4;
+    if(letra=='5')
+        return 5;
+    if(letra=='6')
+        return 6;
+    if(letra=='7')
+        return 7;
+    if(letra=='8')
+        return 8;
+    if(letra=='9')
+        return 9;
+    if(letra=='a')
+        return 10;
+    if(letra=='b')
+        return 11;
+    if(letra=='c')
+        return 12;
+    if(letra=='d')
+        return 13;
+    if(letra=='e')
+        return 14;
+    if(letra=='f')
+        return 15;
+}
+function actualizarColor1(event){
+    R1=16*letra(event.target.value[1])+letra(event.target.value[2]);
+    G1=16*letra(event.target.value[3])+letra(event.target.value[4]);
+    B1=16*letra(event.target.value[5])+letra(event.target.value[6]);
+}
+function actualizarColor2(event){
+    R2=16*letra(event.target.value[1])+letra(event.target.value[2]);
+    G2=16*letra(event.target.value[3])+letra(event.target.value[4]);
+    B2=16*letra(event.target.value[5])+letra(event.target.value[6]);
+}
 /* Funciones para el procesamiento de las imagenes*/
 /* Convertir la imagen a escala de grises */
 function escalaGris(){
@@ -62,6 +115,67 @@ function escalaGris(){
         var instensidad = 0.21*pixeles[i] + 0.7*pixeles[i+1] + 0.07*pixeles[i+2];
         pixeles[i] = pixeles [i+1] = pixeles[i+2] = instensidad;
         contIntensidad[pixeles[i]]++;
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
+/* Poner en negativo la imagen*/
+function negativo(){
+    limpiarResultado();
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        pixeles[i] = 255 - pixeles[i];
+        pixeles [i+1] = 255 - pixeles[i+1];
+        pixeles[i+2] = 255 - pixeles[i+2];
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
+/* Colorear la imagen
+    las variables que tambien actualiza son image3,canvas3 y context3 ya que llama
+    a la funcion escalaGris.
+    Tambien se tiene informacion de pixeles y numPixeles
+*/
+function colorear(){
+    escalaGris();
+    var R = R1/ 255.0;
+    var G = G1/ 255.0;
+    var B = B1/ 255.0;
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        pixeles[i] *= R;
+        pixeles [i+1] *= G;
+        pixeles[i+2] *= B;
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
+/* funcion para colorear la imgagen en forma de degradado */
+function gradiente(){
+    escalaGris();
+    var r1 = R1/ 255.0;
+    var g1 = G1/ 255.0;
+    var b1 = B1/ 255.0;
+    var r2 = R2/ 255.0;
+    var g2 = G2/ 255.0;
+    var b2 = B2/ 255.0;
+    var dr = (r2 - r1) / image3.height;
+    var dg = (g2 - g1) / image3.height;
+    var db = (b2 - b1) / image3.height;
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        pixeles[i] *= r1;
+        pixeles [i+1] *= g1;
+        pixeles[i+2] *= b1;
+
+        if(i>0 && i%(image3.width)==0){
+            r1+=dr;
+            g1+=dg;
+            b1+=db;
+        }
     }
     canvas3.width = image3.width;
     canvas3.height = image3.height;
@@ -86,6 +200,40 @@ function seleccionColor(color){
     canvas3.height = image3.height;
     context3.putImageData(image3,0,0);
 }
+/*  Realiza operaciones logicas
+    1 = and
+    2 = or
+    3 = xor
+*/
+function operadorLogico(operador){
+    limpiarResultado();
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    image4 = context2.getImageData( 0, 0, canvas2.width, canvas2.height );
+    var pixeles2 = image4.data;
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        if(operador == 1 ){
+            pixeles[i] = pixeles[i] & pixeles2[i];
+            pixeles [i+1] = pixeles[i+1] & pixeles2[i+1];
+            pixeles[i+2] = pixeles[i+2] & pixeles2[i+2];
+        }
+        if(operador == 2 ){
+            pixeles[i] = pixeles[i] | pixeles2[i];
+            pixeles [i+1] = pixeles[i+1] | pixeles2[i+1];
+            pixeles[i+2] = pixeles[i+2] | pixeles2[i+2];
+        }
+        if(operador == 3 ){
+            pixeles[i] = pixeles[i] ^ pixeles2[i];
+            pixeles [i+1] = pixeles[i+1] ^ pixeles2[i+1];
+            pixeles[i+2] = pixeles[i+2] ^ pixeles2[i+2];
+        }
+        
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
 /* Mostrar el histograma de una imagen en escala de grises
     las variables que tambien actualiza son image3,canvas3 y context3 ya que llama
     a la funcion escalaGris
@@ -99,24 +247,60 @@ function mostrarHistogramaGris(){
     var max = Math.max(...contIntensidad);
     canvas4.height = 720;
     canvas4.width = 1024;
-    // Grosor de línea
-    context4.lineWidth = 1;
-    // Color de línea
-    context4.strokeStyle = "#212121";
     // Color de relleno
     context4.fillStyle = "#F4511E";
     for(var i=0;i<contIntensidad.length;i++){
         var alto = (contIntensidad[i]/max) * y;
         // x y anchura altura
-        context4.rect(x, y-alto, 2, alto);
-        // Hacemos que se dibuje
-        context4.stroke();
-        // Lo rellenamos
-        context4.fill();
+        context4.fillRect(x, y-alto, 3, alto);
         x+=4;
     }    
 }
-
+/* Muestra el histograma de la imagen a color */
+function mostrarHistogramaColor(){
+    limpiarResultado();
+    var x = 0;
+    var y = 720;
+    var rojo ="#F4511E";
+    var verde = "#09D017";
+    var azul = "#0977D0";
+    limpiarArreglo(contIntensidad);
+    limpiarArreglo(contIntensidadG);
+    limpiarArreglo(contIntensidadB);
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    // contar las veces que se repiten las intensidades
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        contIntensidad[pixeles[i]]++;
+        contIntensidadG[pixeles[i+1]]++;
+        contIntensidadB[pixeles[i+2]]++;
+    }  
+    var maxR = Math.max(...contIntensidad);
+    var maxG = Math.max(...contIntensidadG);
+    var maxB = Math.max(...contIntensidadB);
+    canvas3.height = 720;
+    canvas3.width = 1536;
+    // Grosor de línea
+    context3.lineWidth = 1;
+    // Color de línea
+    
+    
+    for(var i=0;i<contIntensidad.length;i++){
+        var altoR = (contIntensidad[i]/maxR) * y;
+        var altoG = (contIntensidadG[i]/maxG) * y;
+        var altoB = (contIntensidadB[i]/maxB) * y;
+        context3.fillStyle = rojo;
+        context3.fillRect(x, y-altoR, 2, altoR);
+        x+=2;
+        context3.fillStyle = verde;
+        context3.fillRect(x, y-altoG, 2, altoG);
+        x+=2;
+        context3.fillStyle = azul;
+        context3.fillRect(x, y-altoB, 2, altoB);
+        x+=2;
+    }    
+}
 /* Mueve el histograma de una imagen en escala de grises para aclararla u oscurecerla*/
 function moverHistograma(){
     mostrarHistogramaGris();
@@ -144,6 +328,8 @@ function moverHistograma(){
         texto.textContent = valorActual + "/" + valorMaximo;
         texto.id = "texto";
         configuracion.appendChild(texto);
+
+        // se puede agregar lo de habilitar y deshabilitar botones que controlan el movimiento del histograma
     }
     
 }
@@ -172,23 +358,16 @@ function mover(direccion){
     }
     context3.putImageData(image3,0,0);
     //graficar el histograma
-    // Grosor de línea
-    context.lineWidth = 1;
-    // Color de línea
-    context.strokeStyle = "#212121";
+
     // Color de relleno
     context.fillStyle = "#F4511E";
     var max = Math.max(...contIntensidad);
     for(var i=0;i<contIntensidad.length;i++){
         var alto = (contIntensidad[i]/max) * y;
         // x y anchura altura
-        context.rect(x, y-alto, 2, alto);
-        // Hacemos que se dibuje
-        context.stroke();
-        // Lo rellenamos
-        context.fill();
+        context4.fillRect(x, y-alto, 3, alto);
         x+=4;
-    }
+    } 
     /* Habilitar y deshabilitar botones */
     if(valorActual == valorMaximo){
         boton2.disabled = true;
@@ -201,6 +380,35 @@ function mover(direccion){
         boton1.disabled = false;
     }
 }
+/* Reduce la imagen de acuerdo al valor que llega*/
+function reducir(valor){
+    limpiarResultado();
+    /*  a = filas de la imagen original 
+        b = columnas de la imagen original 
+    */
+    var i,a=0,b;
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    var ancho = canvas1.width;
+    pixeles = image3.data;
+    image4 = context1.getImageData( 0, 0,canvas1.width/valor, canvas1.height/valor);
+    var pixelesRes = image4.data
+    var numPixelesRes = image4.width * image4.height;
+    for (i=0, b=0; i < numPixelesRes; i++, b+=(valor)){ 
+        pixelesRes[i*4] = pixeles[b*4];
+        pixelesRes[i*4+1] = pixeles[b*4+1];
+        pixelesRes[i*4+2] = pixeles[b*4+2];
+
+        //se debe saltar las filas de acuerdo al tamaño (valor) a reducir
+        if(i>0 && i%(image4.width)==0){
+            a++;
+            b=ancho*valor*a;
+        }
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image4,100,0);
+}
+
 /* Funciones para realizar algunas operaciones */
 
 /* Poner el arregle en ceros */
