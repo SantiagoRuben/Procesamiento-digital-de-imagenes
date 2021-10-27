@@ -5,22 +5,22 @@ body
 
 @media screen and ( max-width: 1024px ) { 
     canvas.responsive { 
-        width: 300px; 
+        width: 350px; 
     } 
 } 
 @media screen and ( min-width:1025px ) and ( max-width: 1280px ) { 
     canvas.responsive { 
-        width: 400px;
+        width: 450px;
     } 
 } 
 @media screen and ( min-width: 1281px ) { 
     canvas.responsive { 
-        width: 500px; 
+        width: 550px; 
     } 
 } 
 
 .img-wrap{ 
-    margin-top: 60px;
+    margin-top: 40px;
     display: flex; 
     justify-content: space-around;
 } 
