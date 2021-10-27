@@ -1,4 +1,7 @@
-/* Creamos variables para las imagenes a mostrar*/
+/* Creamos variables para las imagenes a mostrar
+    En image2 va la imagen resultante o la segunda imagen cargada, esto se hace para usar las opciones de los operadores logicos con la image1 procesada
+    Para reduccion, escala grises (incluye las funciones que la llaman) y operadores logicos su resultado ira a partir de la image3 (no utilizan image2)
+*/
 var image1 = new Image();
 var image2 = new Image();
 var image3 = new Image();
@@ -8,13 +11,19 @@ var numPixeles;
 var contIntensidad = Array(256); 
 var contIntensidadG = Array(256);
 var contIntensidadB = Array(256);
+var contIntensidadEcualizado = Array(256);
+var contIntensidadEcualizadoG = Array(256);
+var contIntensidadEcualizadoB = Array(256);
 var valorActual, valorMaximo;
 /* div para agregar configuraciones extras */
 var configuracion = document.getElementById("configuracion");
 var nuevoBoton = document.createElement('button'); 
 var texto = document.createElement("p");
+var nuevoNumero;
 var boton1;
 var boton2;
+var num1;
+var num2;
 /* Obtenemos las imagenes que se suban*/
 var imagen1 = document.getElementById('imagen1');
 var imagen2 = document.getElementById('imagen2');
@@ -30,10 +39,15 @@ var canvas3 = document.getElementById('canvas3');
 var context3 = canvas3.getContext( '2d' );
 var canvas4 = document.getElementById('canvas4');
 var context4 = canvas4.getContext( '2d' );
+var canvas5 = document.getElementById('canvas5');
+var context5 = canvas5.getContext( '2d' );
+var canvas6 = document.getElementById('canvas6');
+var context6 = canvas6.getContext( '2d' );
 
 /* Recuperamos los colores elegidos */
 var R1=0,G1=0,B1=0;
 var R2=255,G2=255,B2=255;
+var colorHexa="#000000";
 var color1 = document.getElementById('color1');
 color1.addEventListener('change', actualizarColor1); 
 var color2 = document.getElementById('color2');
@@ -98,6 +112,8 @@ function actualizarColor1(event){
     R1=16*letra(event.target.value[1])+letra(event.target.value[2]);
     G1=16*letra(event.target.value[3])+letra(event.target.value[4]);
     B1=16*letra(event.target.value[5])+letra(event.target.value[6]);
+    colorHexa = event.target.value;
+    console.log(colorHexa);
 }
 function actualizarColor2(event){
     R2=16*letra(event.target.value[1])+letra(event.target.value[2]);
@@ -123,17 +139,17 @@ function escalaGris(){
 /* Poner en negativo la imagen*/
 function negativo(){
     limpiarResultado();
-    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
-    pixeles = image3.data;
-    numPixeles = image3.width * image3.height;
+    image2 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image2.data;
+    numPixeles = image2.width * image2.height;
     for (var i = 0; i < numPixeles*4; i+=4){ 
         pixeles[i] = 255 - pixeles[i];
         pixeles [i+1] = 255 - pixeles[i+1];
         pixeles[i+2] = 255 - pixeles[i+2];
     }
-    canvas3.width = image3.width;
-    canvas3.height = image3.height;
-    context3.putImageData(image3,0,0);
+    canvas2.width = image2.width;
+    canvas2.height = image2.height;
+    context2.putImageData(image2,0,0);
 }
 /* Colorear la imagen
     las variables que tambien actualiza son image3,canvas3 y context3 ya que llama
@@ -171,7 +187,7 @@ function gradiente(){
         pixeles [i+1] *= g1;
         pixeles[i+2] *= b1;
 
-        if(i>0 && i%(image3.width)==0){
+        if(i>0 && i%(image3.width*4)==0){
             r1+=dr;
             g1+=dg;
             b1+=db;
@@ -181,6 +197,114 @@ function gradiente(){
     canvas3.height = image3.height;
     context3.putImageData(image3,0,0);
 }
+/* Ecualizar la imagen en escala de grises
+    La imagen esta en image3, canvas3 y context3
+    Las variables pixeles y numeros de pixeles estan actualizadas
+*/
+function ecualizarGris(){
+    mostrarHistogramaGris();
+    limpiarArreglo(contIntensidadEcualizado);
+    var x = 0;
+    var y = 720;
+    var i;
+    image5 = image3; //context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    var pixelesRes = image5.data;
+    //calculamos la intensidad acumulada
+    for(i=0;i<contIntensidad.length;i++){
+        if(i!=0){
+            contIntensidad[i] += contIntensidad[i-1];
+        }
+    }
+    //Ecualizamos la imagen y la mostramos
+    for (i = 0; i < numPixeles*4; i+=4){ 
+        //pixelesRes[i] = 255.0 * (contIntensidad[pixeles[i]]-contIntensidad[0]) / (image5.width*image5.height - contIntensidad[0]);
+        var instensidad = 255.0 * (contIntensidad[pixeles[i]]-contIntensidad[0]) / (image5.width*image5.height - contIntensidad[0]);
+        pixelesRes[i] = pixelesRes[i+1] = pixelesRes[i+2] = instensidad;
+        contIntensidadEcualizado[pixelesRes[i] ]++;
+    }
+    canvas5.width = image5.width;
+    canvas5.height = image5.height;
+    context5.putImageData(image5,0,0);
+    //mostrar el histograma ecualizado
+    var max = Math.max(...contIntensidadEcualizado);
+    canvas6.height = 720;
+    canvas6.width = 1024;
+    // Color de relleno
+    context6.fillStyle = "#F4511E";
+    for(var i=0;i<contIntensidad.length;i++){
+        var alto = (contIntensidadEcualizado[i]/max) * y;
+        // x y anchura altura
+        context6.fillRect(x, y-alto, 3, alto);
+        x+=4;
+    } 
+}
+/* Ecualizar la imagen a color
+    Las variables pixeles y numeros de pixeles estan actualizadas
+*/
+function ecualizarColor(){
+    limpiarArreglo(contIntensidadEcualizado);
+    limpiarArreglo(contIntensidadEcualizadoG);
+    limpiarArreglo(contIntensidadEcualizadoB);
+    mostrarHistogramaColor();
+    var x = 0;
+    var y = 720;
+    var i;
+    var rojo ="#F4511E";
+    var verde = "#09D017";
+    var azul = "#0977D0";
+    image2 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    console.log(image2);
+    var pixelesRes = image2.data;
+    //calculamos la intensidad acumulada
+    for(i=0;i<contIntensidad.length;i++){
+        if(i!=0){
+            contIntensidad[i] += contIntensidad[i-1];
+            contIntensidadG[i] += contIntensidadG[i-1];
+            contIntensidadB[i] += contIntensidadB[i-1];
+        }
+    }
+    //Ecualizamos la imagen y la mostramos
+    console.log(contIntensidad);
+    console.log(contIntensidadG);
+    console.log(contIntensidadB);
+    for (i = 0; i < numPixeles*4; i+=4){ 
+        pixelesRes[i] = 255.0 * (contIntensidad[pixeles[i]]-contIntensidad[0]) / (image2.width*image2.height - contIntensidad[0]);
+        pixelesRes[i+1] = 255.0 * (contIntensidadG[pixeles[i+1]]-contIntensidadG[0]) / (image2.width*image2.height - contIntensidadG[0]);
+        pixelesRes[i+2] = 255.0 * (contIntensidadB[pixeles[i+2]]-contIntensidadB[0]) / (image2.width*image2.height - contIntensidadB[0]);
+        contIntensidadEcualizado[pixelesRes[i] ]++;
+        contIntensidadEcualizadoG[pixelesRes[i+1] ]++;
+        contIntensidadEcualizadoB[pixelesRes[i+2] ]++;
+    }
+    canvas2.width = image2.width;
+    canvas2.height = image2.height;
+    context2.putImageData(image2,0,0);
+    //mostrar el histograma ecualizado
+    var maxr = Math.max(...contIntensidadEcualizado);
+    var maxg = Math.max(...contIntensidadEcualizadoG);
+    var maxb = Math.max(...contIntensidadEcualizadoB);
+    canvas4.height = 720;
+    canvas4.width = 1536;
+    for(var i=0;i<contIntensidad.length;i++){
+        var altor = (contIntensidadEcualizado[i]/maxr) * y;
+        var altog = (contIntensidadEcualizadoG[i]/maxg) * y;
+        var altob = (contIntensidadEcualizadoB[i]/maxb) * y;
+        // Color de relleno
+        context4.fillStyle = rojo;
+        // x y anchura altura
+        context4.fillRect(x, y-altor, 2, altor);
+        x+=2;
+        // Color de relleno
+        context4.fillStyle = verde;
+        // x y anchura altura
+        context4.fillRect(x, y-altog, 2, altog);
+        x+=2;
+        // Color de relleno
+        context4.fillStyle = azul;
+        // x y anchura altura
+        context4.fillRect(x, y-altob, 2, altob);
+        x+=2;
+    } 
+}
 /* Conservar solo un color de la imagen
     1 = rojo
     2 = verde
@@ -188,17 +312,18 @@ function gradiente(){
 */
 function seleccionColor(color){
     limpiarResultado();
-    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
-    pixeles = image3.data;
-    numPixeles = image3.width * image3.height;
+    image2 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image2.data;
+    numPixeles = image2.width * image2.height;
     for (var i = 0; i < numPixeles*4; i+=4){ 
         pixeles[i] = color == 1 ? pixeles[i] : 0;
         pixeles [i+1] = color == 2 ? pixeles[i+1] : 0;
         pixeles[i+2] = color == 3? pixeles[i+2] : 0;
     }
-    canvas3.width = image3.width;
-    canvas3.height = image3.height;
-    context3.putImageData(image3,0,0);
+    canvas2.width = image2.width;
+    canvas2.height = image2.height;
+    context2.putImageData(image2
+        ,0,0);
 }
 /*  Realiza operaciones logicas
     1 = and
@@ -380,6 +505,113 @@ function mover(direccion){
         boton1.disabled = false;
     }
 }
+/* Pinta la zona seleccionada, se deben pasar parametros en dos textos 
+*/
+function pintarZona(){
+    mostrarHistogramaGris();
+    /* Crear los inputs para leer los datos que delimitan la intensidad */
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.min= 0; 
+    nuevoNumero.max = 255;
+    nuevoNumero.placeholder = 0;
+    configuracion.appendChild(nuevoNumero); 
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num2";
+    nuevoNumero.min= 0; 
+    nuevoNumero.max = 255;
+    nuevoNumero.placeholder = 255;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+    num2 = document.getElementById("num2");
+    /* Crear el boton para que indique cuando quiere que se pinte la zona */
+    nuevoBoton = document.createElement('button'); 
+    nuevoBoton.type = 'button'; 
+    nuevoBoton.id = "boton1";
+    nuevoBoton.innerText = 'Pintar'; 
+    nuevoBoton.onclick = function(){pintar()}; 
+    configuracion.appendChild(nuevoBoton);   
+    boton1 = document.getElementById("boton1");  
+}
+/* Esta funcion se llama desde el boton creado en la funcion pintarZona pinta la zona del elegido por el usuario en 
+    el rango que indico previamente.
+    La imagen a la que se le hace los cambios esta en las variables image3, canvas3 y context3
+    El histograma se pondra sobre las variables canvas4 y context4
+    Las variables pixeles y numPixeles tambien ya han sido asignadas con el valor correspondiente
+*/
+function pintar(){
+    var x = 0;
+    var y = 720;
+    var canvas = canvas6;
+    var context = context6;
+    var rojo = "#F4511E";
+    canvas.height = 720;
+    canvas.width = 1024;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    image5 = context3.getImageData( 0, 0, canvas3.width, canvas3.height);
+    var pixelesRes = image5.data;
+    // tener siempre el valor menor en num1
+    if(num1>num2){
+        var temp = num1;
+        num1=num2;
+        num2=temp;
+    }
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        if(pixeles[i]>num1.value && pixeles[i]<num2.value){
+            pixelesRes[i] = R1;
+            pixelesRes [i+1] = G1;
+            pixelesRes[i+2] = B1;
+        }  
+    }
+    canvas5.width = image5.width;
+    canvas5.height = image5.height;
+    context5.putImageData(image5,0,0);
+
+    var max = Math.max(...contIntensidad);
+    for(var i=0;i<contIntensidad.length;i++){
+        var alto = (contIntensidad[i]/max) * y;
+        if(i> num1.value && i<num2.value){
+            context.fillStyle = colorHexa;
+        }else{
+            context.fillStyle = rojo
+        }
+        context.fillRect(x, y-alto, 3, alto);
+        x+=4;
+    } 
+}
+/* Dibujo los bordes de la imagen
+    1 = verticales
+    2 = horizontales
+    3 = diagonales
+    4 = todos
+    Se tiene la informacion en image3, canvas3 y context3
+*/
+function bordesGris(tipo){
+    escalaGris();
+    var renglonS = image3.width * 4;
+    for (var i = 0; i < numPixeles*4; i+=4){ 
+        var vertical,horizontal,diagonal;
+        //calculamos todos los bordes
+        vertical = Math.abs(pixeles[i] - pixeles[i+4]); 
+        horizontal = Math.abs(pixeles[i] - pixeles[i+renglonS]);
+        diagonal = Math.abs(pixeles[i] - pixeles[i+renglonS+4]);
+        if(tipo ==1){
+            pixeles[i] = pixeles[i+1] = pixeles[i+2] = vertical;
+        } 
+        if(tipo == 2){
+            pixeles[i] = pixeles[i+1] = pixeles[i+2] = horizontal;
+        }      
+        if(tipo == 3){
+            pixeles[i] = pixeles[i+1] = pixeles[i+2] = diagonal;
+        }   
+        if(tipo == 4){
+            pixeles[i] = pixeles[i+1] = pixeles[i+2] = Math.max(horizontal,vertical,diagonal);
+        } 
+    }
+    context3.putImageData(image3,0,0);
+}
 /* Reduce la imagen de acuerdo al valor que llega*/
 function reducir(valor){
     limpiarResultado();
@@ -455,6 +687,14 @@ function limpiarResultado(){
     if(document.body.contains(document.getElementById("texto"))){
         configuracion.removeChild(document.getElementById("texto"));
     }
-    context4.clearRect(0, 0, canvas4.width, canvas4.height);
+    if(document.body.contains(document.getElementById("num1"))){
+        configuracion.removeChild(document.getElementById("num1"));
+    }
+    if(document.body.contains(document.getElementById("num2"))){
+        configuracion.removeChild(document.getElementById("num2"));
+    }
     context3.clearRect(0, 0, canvas3.width, canvas3.height);
+    context4.clearRect(0, 0, canvas4.width, canvas4.height);
+    context5.clearRect(0, 0, canvas5.width, canvas5.height);
+    context6.clearRect(0, 0, canvas6.width, canvas6.height);
 }
