@@ -45,6 +45,8 @@
           <a href="#" onclick="negativo();return false;">Negativo</a>
           <a href="#" onclick="colorear();return false;"> Colorear</a>
           <a href="#" onclick="gradiente();return false;"> Gradiente</a>
+          <a href="#" onclick="ecualizarGris();return false;"> Ecualizar gris</a>
+          <a href="#" onclick="ecualizarColor();return false;"> Ecualizar color</a>
         </div>
       </div>
       <div class="subnav">
@@ -71,16 +73,16 @@
           <a href="#" onclick="mostrarHistogramaGris();return false;">Mostrar histograma grises</a>
           <a href="#" onclick="mostrarHistogramaColor();return false;">Mostrar histograma color</a>
           <a href="#" onclick="moverHistograma();return false;">Mover histograma</a>
-          <a href="#express">Express</a>
+          <a href="#" onclick="pintarZona();return false;">Pintar una zona</a>
         </div>
       </div>
       <div class="subnav">
         <button class="subnavbtn"> Bordes <i class="fa fa-caret-down"></i></button>
         <div class="subnav-content">
-          <a href="#link1">Link 1</a>
-          <a href="#link2">Link 2</a>
-          <a href="#link3">Link 3</a>
-          <a href="#link4">Link 4</a>
+          <a href="#" onclick="bordesGris(1);return false;">Verticales</a>
+          <a href="#" onclick="bordesGris(2);return false;">Horizontales</a>
+          <a href="#" onclick="bordesGris(3);return false;">Diagonales</a>
+          <a href="#" onclick="bordesGris(4);return false;">Maximo</a>
         </div>
       </div>
       <div class="subnav">
@@ -104,7 +106,11 @@
       <canvas id ="canvas3"   class="responsive"  ></canvas>
       <canvas id ="canvas4" class="responsive"  ></canvas>
     </div>
-
+    <div class="img-wrap" > 
+      <!-- Utilizado solo para las ecualizaciones-->
+      <canvas id ="canvas5"   class="responsive"  ></canvas>
+      <canvas id ="canvas6" class="responsive"  ></canvas>
+    </div>
     <script type="text/javascript" src="PDI.js"></script>
   </body>
 </html>
