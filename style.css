@@ -11,14 +11,24 @@ body
 @media screen and ( min-width:1025px ) and ( max-width: 1280px ) { 
     canvas.responsive { 
         width: 450px;
+        
     } 
 } 
-@media screen and ( min-width: 1281px ) { 
+@media screen and ( min-width: 1281px ) and ( max-width: 1366px ){ 
     canvas.responsive { 
         width: 550px; 
     } 
 } 
+@media screen and ( min-width: 1367px ) { 
+    canvas.responsive { 
+        width: 650px; 
+    } 
+} 
 
+.zonaSeleccion{
+    width: 650px;
+    height: 350px;
+}
 .img-wrap{ 
     margin-top: 40px;
     display: flex; 
