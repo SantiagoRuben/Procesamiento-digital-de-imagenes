@@ -639,9 +639,10 @@ function mover(direccion){
 function pintarZona(){
     mostrarHistogramaGris(true);
     /* Crear los inputs para leer los datos que delimitan la intensidad */
-    nuevoNumero = document.createElement('input'); 
+    nuevoNumero = document.createElement('input');
     nuevoNumero.type = 'number'; 
     nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
     nuevoNumero.min= 0; 
     nuevoNumero.max = 255;
     nuevoNumero.placeholder = 0;
@@ -649,6 +650,7 @@ function pintarZona(){
     nuevoNumero = document.createElement('input'); 
     nuevoNumero.type = 'number'; 
     nuevoNumero.id = "num2";
+    nuevoNumero.className = "tam";
     nuevoNumero.min= 0; 
     nuevoNumero.max = 255;
     nuevoNumero.placeholder = 255;
@@ -659,6 +661,7 @@ function pintarZona(){
     nuevoBoton = document.createElement('button'); 
     nuevoBoton.type = 'button'; 
     nuevoBoton.id = "boton1";
+    nuevoBoton.className = "tam";
     nuevoBoton.innerText = 'Pintar'; 
     nuevoBoton.onclick = function(){pintar()}; 
     configuracion.appendChild(nuevoBoton);   
@@ -671,6 +674,12 @@ function pintarZona(){
     Las variables pixeles y numPixeles tambien ya han sido asignadas con el valor correspondiente
 */
 function pintar(){
+    //validar numeros de
+    if(!validarZona(Number(num1.value),Number(num2.value))){
+        return false;
+    }else if(document.body.contains(document.getElementById("texto"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("texto"));
+    }
     var x = 0;
     var y = 720;
     var canvas = canvas6;
@@ -891,6 +900,7 @@ function restaImagen(tipo){
 */
 function filtroMedio(){
     limpiarResultado();
+    texto = document.createElement('p'); 
     texto.textContent = "Desenfoque (# impares)";
     texto.id = "texto";
     configuracion.appendChild(texto);
@@ -916,7 +926,7 @@ function desenfocar(){
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
     var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
-    var tam = num1.value;
+    var tam = Number(num1.value);
     var filtro = crearMatriz(tam);
     console.log(filtro);
     var sum = sumaMatriz(filtro);
@@ -960,6 +970,7 @@ function desenfocar(){
 */ 
 function filtroBordes(){
     limpiarResultado();
+    texto = document.createElement('p'); 
     texto.textContent = "Tamaño bordes";
     texto.id = "texto";
     configuracion.appendChild(texto);
@@ -1009,14 +1020,14 @@ function trazar(){
     limpiarArreglo(filtro);
     var valor = num2.value.toLowerCase();
     var tipoBorde = valor =="vertical" ? 7: (valor =="horizontal" ? 5 : valor =="diagonal" ? 8:4);
-    filtro[4] = +num1.value;
+    filtro[4] = Number(num1.value);
     if(tipoBorde == 4){ // todos los bordes
-        filtro[7] = -num1.value;
-        filtro[5] = -num1.value;
-        filtro[8] = -num1.value;
-        filtro[4] = +num1.value*3; // para cacular los bordes totales se necesita mayor informacion del pixel de enmedio
+        filtro[7] = -Number(num1.value);
+        filtro[5] = -Number(num1.value);
+        filtro[8] = -Number(num1.value);
+        filtro[4] = Number(num1.value)*3; // para cacular los bordes totales se necesita mayor informacion del pixel de enmedio
     }else{ 
-        filtro[tipoBorde] = -num1.value;
+        filtro[tipoBorde] = -Number(num1.value);
     }
     var sum = sumaMatriz(filtro);
     //console.log(filtro);
@@ -1114,6 +1125,7 @@ function limpiarResultado(){
     if(document.body.contains(document.getElementById("num2"))){
         configuracion.removeChild(document.getElementById("num2"));
     }
+    errores = [];
     context3.clearRect(0, 0, canvas3.width, canvas3.height);
     context4.clearRect(0, 0, canvas4.width, canvas4.height);
     context5.clearRect(0, 0, canvas5.width, canvas5.height);
@@ -1196,4 +1208,28 @@ function crearMatriz(tam){
         matriz[i]=1;
     }
     return matriz;
+}
+
+/* Funciones para realizar algunas validaciones */
+
+/* Valiada el rango que hay en la funcion pintar(); 
+    Compruena que ambos numeros sean entre 0-255
+    y que num2 no sea menor que num1
+*/
+function validarZona(num1,num2){
+    var ban = true;
+    texto= document.createElement("p");
+    texto.id = "texto";
+    if ((num1 > 255 || num1 < 0) || (num2 > 255 || num2 < 0)) {
+        ban = false;
+        texto.textContent ="Numero fuera de rango (0-255)"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    } 
+    if(num2 < num1){
+        texto.textContent ="El segundo numero debe de ser mayor al primero";
+        configuracion.appendChild(texto);
+        return false;
+    }
+    return true;
 }
