@@ -1,3 +1,4 @@
+/* Santiago Martinez Ruben Emmanuel*/
 body 
 {
    background: rgb(144, 145, 126)
@@ -24,7 +25,10 @@ body
         width: 650px; 
     } 
 } 
-
+/*Tamaño de algunos elementos de configuracion para los efectos*/
+.tam{
+    height: 20px;
+}
 .zonaSeleccion{
     width: 650px;
     height: 350px;
