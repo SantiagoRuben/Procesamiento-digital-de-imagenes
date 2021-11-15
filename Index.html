@@ -1,3 +1,4 @@
+<!--Santiago Martinez Ruben Emmanuel-->
 <!DOCTYPE html>
 <html lang="es">
   <head> 
@@ -104,6 +105,22 @@
           <a href="#" onclick="reducir(8);return false;">1/8</a>
         </div>
       </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Suma y resta <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="sumaImagen(1);return false;">Sumar</a>
+          <a href="#" onclick="sumaImagen(2);return false;">Sumar normalizada</a>
+          <a href="#" onclick="restaImagen(1);return false;">Resta</a>
+          <a href="#" onclick="restaImagen(2);return false;">Resta normalizada</a>
+        </div>
+      </div>
+      <div class="subnav">
+        <button class="subnavbtn"> Filtros <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="filtroMedio();return false;">Desenfocar</a>
+          <a href="#" onclick="filtroBordes();return false;">Bordes</a>
+        </div>
+      </div>
     </div>
     <!-- Comienza el cuerpo de la pagina-->
     <div class="img-wrap" > 
@@ -114,7 +131,7 @@
     <div  id="configuracion" class="img-wrap"></div>
     <div class="img-wrap" > 
       <!-- Imagenes resultado del procesamiento-->
-      <canvas id ="canvas3"   class="responsive" ></canvas>
+      <canvas id ="canvas3"    ></canvas>
       <canvas id ="canvas4" class="responsive"  ></canvas>
     </div>
     <div class="img-wrap" > 
