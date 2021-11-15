@@ -1,3 +1,4 @@
+/* Santiago Martinez Ruben Emmanuel */
 /* Creamos variables para las imagenes a mostrar*/
 var image1 = new Image();
 var image2 = new Image();
@@ -121,7 +122,7 @@ function actualizarColor1(event){
     G1=16*letra(event.target.value[3])+letra(event.target.value[4]);
     B1=16*letra(event.target.value[5])+letra(event.target.value[6]);
     colorHexa = event.target.value;
-    console.log(colorHexa);
+    //console.log(colorHexa);
 }
 function actualizarColor2(event){
     R2=16*letra(event.target.value[1])+letra(event.target.value[2]);
@@ -288,7 +289,7 @@ function ecualizarColor(){
     var verde = "#09D017";
     var azul = "#0977D0";
     image4 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
-    console.log(image4);
+    //console.log(image4);
     var pixelesRes = image4.data;
     //calculamos la intensidad acumulada
     for(i=0;i<contIntensidad.length;i++){
@@ -299,9 +300,9 @@ function ecualizarColor(){
         }
     }
     //Ecualizamos la imagen y la mostramos
-    console.log(contIntensidad);
-    console.log(contIntensidadG);
-    console.log(contIntensidadB);
+    //console.log(contIntensidad);
+    //console.log(contIntensidadG);
+    //console.log(contIntensidadB);
     for (i = 0; i < numPixeles*4; i+=4){ 
         pixelesRes[i] = 255.0 * (contIntensidad[pixeles[i]]-contIntensidad[0]) / (image4.width*image4.height - contIntensidad[0]);
         pixelesRes[i+1] = 255.0 * (contIntensidadG[pixeles[i+1]]-contIntensidadG[0]) / (image4.width*image4.height - contIntensidadG[0]);
@@ -360,12 +361,12 @@ function clic(event){
         if(click){
             posicionX = event.clientX - Math.abs(rect.left);
             posicionY = event.clientY - rect.top;
-            console.log(rect.left);
-            console.log(rect.top);
-            console.log(event.clientX );
-            console.log(event.clientY);
-            console.log(posicionX);
-            console.log( posicionY);
+           // console.log(rect.left);
+            //console.log(rect.top);
+           // console.log(event.clientX );
+           // console.log(event.clientY);
+           // console.log(posicionX);
+            //console.log( posicionY);
             
         }else{// se colorea la imagen
             var xTemp = posicionX;
@@ -821,7 +822,243 @@ function reducir(valor){
     canvas3.height = image3.height;
     context3.putImageData(image4,100,0);
 }
+/*
+    Suma dos imagenes
+    1: si sobrepasa 255 se regresa el valor a 255
+    2: Se normalizasa la suma
+*/
+function sumaImagen(tipo){
+    limpiarResultado();
+    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    image4 = context2.getImageData( 0, 0, canvas2.width, canvas2.height);
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    //var pixelesRes = Array();
+    var pixelesRes = image3.data;
+    var pixeles2 = image4.data;
+    operacion(pixeles, pixeles2,numPixeles,pixelesRes,1);
+   // console.log("pixelesRes")
+    var max = maximaIntensidad(pixelesRes); // encontramos la intensidad mas alta de la suma de la imagen
+    for(var i = 0; i < numPixeles*4; i+=4){
+        if(tipo == 1){
+            pixelesRes[i] = pixelesRes[i] >255 ? 255: pixelesRes[i] ;
+            pixelesRes[i+1] = pixelesRes[i+1]>255 ? 255: pixelesRes[i+1];
+            pixelesRes[i+2] = pixelesRes[i+2]>255 ? 255: pixelesRes[i+2];
+        }else{
+            pixelesRes[i] = pixelesRes[i] >255 ? (sumaR*255)/max : pixelesRes[i];
+            pixelesRes[i+1] = pixelesRes[i+1]>255 ? (sumaG*255)/max : pixelesRes[i+1];
+            pixelesRes[i+2] = pixelesRes[i+2]>255 ?(sumaB*255)/max : pixelesRes[i+2];
+        }
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);  
+}
+/*
+    Resta dos imagenes
+    1: toma el valor absoluto de la resta
+    2: Se normalizasa la resta
+*/
+function restaImagen(tipo){
+    limpiarResultado();
+    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    image4 = context2.getImageData( 0, 0, canvas2.width, canvas2.height);
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    var pixelesRes = Array(); 
+    //var pixelesRes = image3.data;
+    var pixeles2 = image4.data;
+    operacion(pixeles, pixeles2,numPixeles,pixelesRes,2);
+    //console.log("pixelesRes");
+    var max = maximaIntensidad(pixelesRes); // encontramos la intensidad mas alta de la suma de la imagen
+    var min = minimaIntensidad(pixelesRes); // encontramos la intensidad mas alta de la suma de la imagen
+    for(var i = 0; i < numPixeles*4; i+=4){
+        if(tipo == 1){
+            pixeles[i] = Math.abs(pixelesRes[i]);
+            pixeles[i+1] = Math.abs(pixelesRes[i+1]);
+            pixeles[i+2] = Math.abs(pixelesRes[i+2]);
+        }else{
+            pixeles[i] = pixelesRes[i]<0 ? ((pixelesRes[i]-min)/(max-min)) * 255: pixelesRes[i];
+            pixeles[i+1] = pixelesRes[i+1]<0 ? ((pixelesRes[i+1]-min)/(max-min)) * 255 : pixelesRes[i+1];
+            pixeles[i+2] = pixelesRes[i+2]<0 ? ((pixelesRes[i+2]-min)/(max-min)) * 255 : pixelesRes[i+2];
+        }
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);  
+}
+/* Filtro de la media (desenfocar una imagen), la matriz con la que se aplica el filtro debe de ser de puros 1
+*/
+function filtroMedio(){
+    limpiarResultado();
+    texto.textContent = "Desenfoque (# impares)";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = 0;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+     /* Crear el boton para que indique cuando quiere desenfocar */
+     nuevoBoton = document.createElement('button'); 
+     nuevoBoton.type = 'button'; 
+     nuevoBoton.id = "boton1";
+     nuevoBoton.className = "tam";
+     nuevoBoton.innerText = 'Desenfocar'; 
+     nuevoBoton.onclick = function(){desenfocar()}; 
+     configuracion.appendChild(nuevoBoton);   
+     boton1 = document.getElementById("boton1");  
+}
+function desenfocar(){
+    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
+    var tam = num1.value;
+    var filtro = crearMatriz(tam);
+    console.log(filtro);
+    var sum = sumaMatriz(filtro);
+    console.log(sum);
+    //console.log(tam);
+    //console.log(i!=image3.width-(tam -1));
+    //console.log(j!=image3.height-(tam-1));
+   for( var j = 0 ; j< image3.height; j++){
+        for (var i = 0 ; i < image3.width; i++){ 
+            if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
+                var intensidadR=0;
+                var intensidadG=0;
+                var intensidadB=0;
+                for(var l=0; l<tam;l++){
+                    for(var m=0; m<tam; m++){
+                        // se suman para obtener la parte de la matriz que queremos 
+                        ////////////////////////////////         (renglon matriz)+(renglon imagen)    + (columna matriz)+(columna imagen)
+                        intensidadR += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) ];
+                        intensidadG += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) +1];
+                        intensidadB += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) +2];
+                        if(l==Math.floor(tam/2) && m==Math.floor(tam/2)){
+                            pixelCambio = (l*image3.width*4)+(j*image3.width*4) + (m*4) + (i*4);
+                            //console.log("pixel" + pixelCambio);
+                        }
+                    }
+                
+                }
+                pixeles[pixelCambio] = intensidadR/sum;
+                pixeles[pixelCambio +1] = intensidadG/sum;
+                pixeles[pixelCambio+2] = intensidadB/sum;
+            }
+        } 
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
+/*
+    Funciones para el filtro de traza de bordes
+    
+*/ 
+function filtroBordes(){
+    limpiarResultado();
+    texto.textContent = "Tamaño bordes";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = 1;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
 
+    texto = document.createElement('p'); 
+    texto.textContent = "Tipo";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'text'; 
+    nuevoNumero.id = "num2";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = "vertical";
+    configuracion.appendChild(nuevoNumero); 
+    num2 = document.getElementById("num2");
+     /* Crear el boton para que indique cuando quiere desenfocar */
+     nuevoBoton = document.createElement('button'); 
+     nuevoBoton.type = 'button'; 
+     nuevoBoton.id = "boton1";
+     nuevoBoton.className = "tam";
+     nuevoBoton.innerText = 'Trazar'; 
+     nuevoBoton.onclick = function(){trazar()}; 
+     configuracion.appendChild(nuevoBoton);   
+     boton1 = document.getElementById("boton1");  
+}
+/*
+El numero que se lee de num2 significa
+    0: bordes horizontales 
+    1: bordes vericales 
+    2: bordes diagonales 
+    4: bordes totales
+*/
+function trazar(){
+    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
+    var tam = 3;
+    var filtro = Array(tam*tam);
+    limpiarArreglo(filtro);
+    var valor = num2.value.toLowerCase();
+    var tipoBorde = valor =="vertical" ? 7: (valor =="horizontal" ? 5 : valor =="diagonal" ? 8:4);
+    filtro[4] = +num1.value;
+    if(tipoBorde == 4){ // todos los bordes
+        filtro[7] = -num1.value;
+        filtro[5] = -num1.value;
+        filtro[8] = -num1.value;
+        filtro[4] = +num1.value*3; // para cacular los bordes totales se necesita mayor informacion del pixel de enmedio
+    }else{ 
+        filtro[tipoBorde] = -num1.value;
+    }
+    var sum = sumaMatriz(filtro);
+    //console.log(filtro);
+    //console.log(pixeles);
+    //console.log(sum);
+    //console.log(i!=image3.width-(tam -1));
+    //console.log(j!=image3.height-(tam-1));
+    var ban=0
+   for( var j = 0 ; j< image3.height; j++){
+        for (var i = 0 ; i < image3.width; i++){ 
+            if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
+                var intensidadR=0;
+                var intensidadG=0;
+                var intensidadB=0;
+                for(var l=0; l<tam;l++){
+                    for(var m=0; m<tam; m++){
+                        // se suman para obtener la parte de la matriz que queremos 
+                        ////////////////////////////////         (renglon matriz)+(renglon imagen)    + (columna matriz)+(columna imagen)
+                        intensidadR += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4))];
+                        intensidadG += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4) +1)];
+                        intensidadB += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + ((i*4) +2)];
+                       /* if(ban==0){
+                            console.log(intensidadR);
+                        }*/
+                        if(l==Math.floor(tam/2) && m==Math.floor(tam/2)){
+                            pixelCambio = (l*image3.width*4)+(j*image3.width*4) + (m*4) + (i*4);
+                            //console.log("pixel" + pixelCambio);
+                        }
+                    }
+                }
+                ban=1;
+                pixeles[pixelCambio] = Math.abs(intensidadR)/sum;
+                //console.log("pixel " + pixeles[pixelCambio] )
+                pixeles[pixelCambio +1] = Math.abs(intensidadG)/sum;
+                pixeles[pixelCambio+2] = Math.abs(intensidadB)/sum;
+            }
+        } 
+    }
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image3,0,0);
+}
 /* Funciones para realizar algunas operaciones */
 
 /* Poner el arregle en ceros */
@@ -868,6 +1105,9 @@ function limpiarResultado(){
     if(document.body.contains(document.getElementById("texto"))){
         configuracion.removeChild(document.getElementById("texto"));
     }
+    if(document.body.contains(document.getElementById("texto"))){
+        configuracion.removeChild(document.getElementById("texto"));
+    }
     if(document.body.contains(document.getElementById("num1"))){
         configuracion.removeChild(document.getElementById("num1"));
     }
@@ -888,4 +1128,72 @@ function gris(){
         pixeles[i] = pixeles [i+1] = pixeles[i+2] = instensidad;
         contIntensidad[pixeles[i]]++;
     }
+}
+
+/*calcula la intensidad maxima de un arreglo de pixeles
+    recibe el arreglo de los pixeles
+    retorna el valor maximo
+*/
+function maximaIntensidad(pixeles){
+    var max = 0;
+    for ( var i=0; i<pixeles.length; i++){
+        if (max < pixeles[i] && i%3 != 0){ // i%3 se agrega para evitar el canal de opacidad
+            max = pixeles[i];
+        }   
+    }
+    return max;
+}
+/*calcula la intensidad minima  de un arreglo de pixeles
+    recibe el arreglo de los pixeles
+    retorna el valor maximo
+*/
+function minimaIntensidad(pixeles){
+    var min = pixeles[0];
+    for ( var i=0; i<pixeles.length; i++){
+        if (min > pixeles[i] && i%3 != 0){ // i%3 se agrega para evitar el canal de opacidad
+            min = pixeles[i];
+        }   
+    }
+    return min;
+}
+/*
+    Suma o resta los pixeles de una imagen y los coloca un en arreglo pixelesRes
+    1: Suma
+    2: resta
+*/
+function operacion(pixeles,pixeles2,numPixeles,pixelesRes,op){
+    for(var i=0; i<numPixeles*4; i+=4){
+        if(op ==1){
+            var resultadoR = pixeles[i] + pixeles2[i];
+            var resultadoG = pixeles[i+1] + pixeles2[i+1];
+            var resultadoB = pixeles[i+2] + pixeles2[i+2];
+        }else{
+            var resultadoR = pixeles[i] - pixeles2[i];
+            var resultadoG = pixeles[i+1] - pixeles2[i+1];
+            var resultadoB = pixeles[i+2] - pixeles2[i+2];
+        }
+        pixelesRes[i] = resultadoR;
+        pixelesRes[i+1] = resultadoG;
+        pixelesRes[i+2] = resultadoB;
+        pixelesRes[i+3] = pixeles[i+3];
+    }
+}
+
+// suma el contenido de la matriz si es menor o igual a cero regresa 1
+function sumaMatriz(matriz){
+    var sum = 0;
+    var tam = matriz.length;
+    for(var i = 0; i<tam;i++){
+        sum+=matriz[i];
+    }      
+    return sum <=0? 1: sum;
+}
+
+// crea una matirz de 1 del tamaño que se le envie
+function crearMatriz(tam){
+    var matriz= Array(tam*tam);
+    for(var i = 0; i<tam*tam;i++){
+        matriz[i]=1;
+    }
+    return matriz;
 }
