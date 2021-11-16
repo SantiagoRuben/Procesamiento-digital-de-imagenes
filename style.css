@@ -1,7 +1,7 @@
 /* Santiago Martinez Ruben Emmanuel*/
 body 
 {
-   background: rgb(144, 145, 126)
+   background: rgb(122, 122, 106)
 }
 
 @media screen and ( max-width: 1024px ) { 
@@ -28,6 +28,30 @@ body
 /*Tamaño de algunos elementos de configuracion para los efectos*/
 .tam{
     height: 20px;
+}
+/* estilos para la matriz de convoluciones*/
+.matriz {
+    display: inline-flex;
+    flex-direction: column;
+    border: 2.5px solid;
+}
+
+.fila{
+	display: flex;
+}
+
+.cuadro{
+	border: 2.5px solid;
+	background-color: white;
+	width:60px;/*cambiar a 50*/
+    height:60px;/*cambiar a 50*/
+    text-align: center;
+}
+/* Termina estilos matriz*/
+.nota{
+    margin-top: 10px;
+    font-size: 18px;
+    color: rgb(194, 213, 248);
 }
 .zonaSeleccion{
     width: 650px;
