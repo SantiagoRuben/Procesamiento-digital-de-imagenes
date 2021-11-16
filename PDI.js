@@ -18,15 +18,19 @@ var contIntensidadEcualizadoB = Array(256);
 var valorActual, valorMaximo;
 /* div para agregar configuraciones extras */
 var configuracion = document.getElementById("configuracion");
+var notas = document.getElementById("nota");
 var nuevoBoton = document.createElement('button'); 
 var texto = document.createElement("p");
 var nuevoNumero;
+const matrizInput = document.createElement("div"); // se crea el div donde se dibujara la matriz para bordes
+var banMatriz = 0; //indica si agregar los elementos para la matriz o si ya han sido agregados
 //recupera los botones que desplazan al histograma
 var boton1;
 var boton2;
-//recupera los inputs con los numeros para seleccionar una parte del histograma a pintar
+//recupera los inputs con los numeros 
 var num1;
 var num2;
+var numeroMatriz = [];
 var banSeleccionZona = 0 ; // indica si se va a empezar a realizar la funcion seleccionZona
 //posicion del mouse
 var posicionX;
@@ -66,7 +70,7 @@ color2.addEventListener('change', actualizarColor2);
 function CargarImagen1(){
     limpiarResultado();
     image1.src = window.URL.createObjectURL(imagen1.files[0]);
- 
+    notas.innerHTML = "Se recomienda seleccionar los colores para poder apreciar de mejor forma los efectos de: \<br/>Colorear, gradiente y colorear una zona." ;
     image1.onload = function () {
         canvas1.width = image1.width;
         canvas1.height = image1.height; 
@@ -168,6 +172,7 @@ function negativo(){
 */
 function colorear(){
     escalaGris(false);
+    notas.innerHTML = "Recuerda que puedes seleccionar el color con el cual realizar este efecto.";
     var R = R1/ 255.0;
     var G = G1/ 255.0;
     var B = B1/ 255.0;
@@ -186,6 +191,8 @@ function colorear(){
 */
 function gradiente(direccion){
     escalaGris(false);
+    notas.innerHTML = "Recuerda que puedes seleccionar el color con el cual realizar este efecto.\<br/>"+
+                        "Además, para este efecto se utilizan los dos colores elegidos. ";
     var r1 = R1/ 255.0;
     var g1 = G1/ 255.0;
     var b1 = B1/ 255.0;
@@ -344,6 +351,9 @@ function ecualizarColor(){
 function seleccionZona(){
     //escalaGris(true);
     limpiarResultado(); //
+    notas.innerHTML = "La seleccion de la zona debe de realizarse sobre la imagen de abajo, el resultado se mostrara a la derecha.\<br>" +
+                        "Para comenzar a seleccionar el area que se quiere mantener de color se debe de dar clic dentro de la imagen,"+
+                        "una vez que haya terminado de elegir el area debera dar un segundo clic para poder visualizar el resultado.";
     image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );//
     canvas3.height = image3.height;//
     canvas3.width = image3.width; //
@@ -464,6 +474,7 @@ function seleccionColor(color){
 */
 function operadorLogico(operador){
     limpiarResultado();
+    notas.innerHTML = "Para vizualizar de forma correcta el efecto es necesario cargar dos imagenes y que estas sean de las mismas dimensiones";
     image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
@@ -559,6 +570,8 @@ function mostrarHistogramaColor(){
 function moverHistograma(){
     mostrarHistogramaGris(true);
     valoresIntensidad();
+    notas.innerHTML = "Al dar clic en el boton + la imagen se aclarará, al dar clic en el boton - la imagen se oscurecerá \<br/>" +
+                        "Tenga en cuenta que no a todas las imgenes se les podra aplicar este efecto.";
     if(valorActual == 0 && valorMaximo == 0){
         texto.textContent = "Esta imagen no se puede mover su histograma, pruebe con otra";
         texto.id = "texto";
@@ -583,7 +596,17 @@ function moverHistograma(){
         texto.id = "texto";
         configuracion.appendChild(texto);
 
-        // se puede agregar lo de habilitar y deshabilitar botones que controlan el movimiento del histograma
+        /* Habilitar y deshabilitar botones */
+        if(valorActual == valorMaximo){
+            boton2.disabled = true;
+        }else{
+            boton2.disabled = false;
+        }
+        if(valorActual==0){
+            boton1.disabled = true;
+        }else{
+            boton1.disabled = false;
+        }
     }
     
 }
@@ -638,6 +661,8 @@ function mover(direccion){
 */
 function pintarZona(){
     mostrarHistogramaGris(true);
+    notas.innerHTML = "En la pantalla se muestran dos recuadros donde deberá ingresar el intervalo que desea pintar, el intervalo máximo es de [0-255].\<br/>"+
+                        "El intervalo señala las intensidades de los pixeles que deben ser pintados, recuerde que puede seleccionar el color con el cual se pintará la imagen";
     /* Crear los inputs para leer los datos que delimitan la intensidad */
     nuevoNumero = document.createElement('input');
     nuevoNumero.type = 'number'; 
@@ -831,13 +856,14 @@ function reducir(valor){
     canvas3.height = image3.height;
     context3.putImageData(image4,100,0);
 }
-/*
+/* 2 parcial
     Suma dos imagenes
     1: si sobrepasa 255 se regresa el valor a 255
     2: Se normalizasa la suma
 */
 function sumaImagen(tipo){
     limpiarResultado();
+    notas.innerHTML = "Para vizualizar de forma correcta el efecto es necesario cargar dos imagenes y que estas sean de las mismas dimensiones";
     image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
     image4 = context2.getImageData( 0, 0, canvas2.width, canvas2.height);
     pixeles = image3.data;
@@ -863,13 +889,14 @@ function sumaImagen(tipo){
     canvas3.height = image3.height;
     context3.putImageData(image3,0,0);  
 }
-/*
+/*2 parcial
     Resta dos imagenes
     1: toma el valor absoluto de la resta
     2: Se normalizasa la resta
 */
 function restaImagen(tipo){
     limpiarResultado();
+    notas.innerHTML = "Para vizualizar de forma correcta el efecto es necesario cargar dos imagenes y que estas sean de las mismas dimensiones";
     image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
     image4 = context2.getImageData( 0, 0, canvas2.width, canvas2.height);
     pixeles = image3.data;
@@ -896,10 +923,14 @@ function restaImagen(tipo){
     canvas3.height = image3.height;
     context3.putImageData(image3,0,0);  
 }
-/* Filtro de la media (desenfocar una imagen), la matriz con la que se aplica el filtro debe de ser de puros 1
+/* 2 parcial
+Filtro de la media (desenfocar una imagen), la matriz con la que se aplica el filtro debe de ser de puros 1
 */
 function filtroMedio(){
     limpiarResultado();
+    notas.innerHTML = "Antes de dar clic en desenfocar, es necesario que ingrese el tamaño de la matriz en el recuadro, el numero debera ser impar.\<br/>"+
+                        "Mientras mayor sea el numero, más visible sera el desenfoque.\<br/>"+
+                        "Este efecto puede tardar mas que otros.";
     texto = document.createElement('p'); 
     texto.textContent = "Desenfoque (# impares)";
     texto.id = "texto";
@@ -908,7 +939,7 @@ function filtroMedio(){
     nuevoNumero.type = 'number'; 
     nuevoNumero.id = "num1";
     nuevoNumero.className = "tam";
-    nuevoNumero.placeholder = 0;
+    nuevoNumero.placeholder = 1;
     configuracion.appendChild(nuevoNumero); 
     num1 = document.getElementById("num1");
      /* Crear el boton para que indique cuando quiere desenfocar */
@@ -922,77 +953,29 @@ function filtroMedio(){
      boton1 = document.getElementById("boton1");  
 }
 function desenfocar(){
-    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
-    pixeles = image3.data;
-    numPixeles = image3.width * image3.height;
-    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
+    if(!validarDesenfocar(Number(num1.value))){
+        return false;
+    }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
     var tam = Number(num1.value);
     var filtro = crearMatriz(tam);
-    console.log(filtro);
-    var sum = sumaMatriz(filtro);
-    console.log(sum);
-    //console.log(tam);
-    //console.log(i!=image3.width-(tam -1));
-    //console.log(j!=image3.height-(tam-1));
-   for( var j = 0 ; j< image3.height; j++){
-        for (var i = 0 ; i < image3.width; i++){ 
-            if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
-                var intensidadR=0;
-                var intensidadG=0;
-                var intensidadB=0;
-                for(var l=0; l<tam;l++){
-                    for(var m=0; m<tam; m++){
-                        // se suman para obtener la parte de la matriz que queremos 
-                        ////////////////////////////////         (renglon matriz)+(renglon imagen)    + (columna matriz)+(columna imagen)
-                        intensidadR += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) ];
-                        intensidadG += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) +1];
-                        intensidadB += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + (i*4) +2];
-                        if(l==Math.floor(tam/2) && m==Math.floor(tam/2)){
-                            pixelCambio = (l*image3.width*4)+(j*image3.width*4) + (m*4) + (i*4);
-                            //console.log("pixel" + pixelCambio);
-                        }
-                    }
-                
-                }
-                pixeles[pixelCambio] = intensidadR/sum;
-                pixeles[pixelCambio +1] = intensidadG/sum;
-                pixeles[pixelCambio+2] = intensidadB/sum;
-            }
-        } 
-    }
-    canvas3.width = image3.width;
-    canvas3.height = image3.height;
-    context3.putImageData(image3,0,0);
+    convolucion(filtro,tam,false);
 }
-/*
+/*2 parcial
     Funciones para el filtro de traza de bordes
-    
 */ 
 function filtroBordes(){
     limpiarResultado();
+    notas.innerHTML = "Se debe llenar la matriz con los valores para calcular los bordes";
     texto = document.createElement('p'); 
-    texto.textContent = "Tamaño bordes";
+    texto.textContent = "Matriz filtro:";
     texto.id = "texto";
     configuracion.appendChild(texto);
-    nuevoNumero = document.createElement('input'); 
-    nuevoNumero.type = 'number'; 
-    nuevoNumero.id = "num1";
-    nuevoNumero.className = "tam";
-    nuevoNumero.placeholder = 1;
-    configuracion.appendChild(nuevoNumero); 
-    num1 = document.getElementById("num1");
-
-    texto = document.createElement('p'); 
-    texto.textContent = "Tipo";
-    texto.id = "texto";
-    configuracion.appendChild(texto);
-    nuevoNumero = document.createElement('input'); 
-    nuevoNumero.type = 'text'; 
-    nuevoNumero.id = "num2";
-    nuevoNumero.className = "tam";
-    nuevoNumero.placeholder = "vertical";
-    configuracion.appendChild(nuevoNumero); 
-    num2 = document.getElementById("num2");
+    creaMatriz(3);
+    for (var i=1; i <= 9; i++){
+        numeroMatriz[i-1] = document.getElementById(i);
+    }
      /* Crear el boton para que indique cuando quiere desenfocar */
      nuevoBoton = document.createElement('button'); 
      nuevoBoton.type = 'button'; 
@@ -1003,7 +986,7 @@ function filtroBordes(){
      configuracion.appendChild(nuevoBoton);   
      boton1 = document.getElementById("boton1");  
 }
-/*
+/*2 parcial
 El numero que se lee de num2 significa
     0: bordes horizontales 
     1: bordes vericales 
@@ -1011,24 +994,32 @@ El numero que se lee de num2 significa
     4: bordes totales
 */
 function trazar(){
-    image3 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    if(!validarTrazar(numeroMatriz)){
+        return false;
+    }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    var tam = 3;
+    var filtro = [];
+    for(var i=0; i<9; i++){
+        filtro[i] = Number(numeroMatriz[i].value);
+    }
+    convolucion(filtro,tam,true);
+    
+}
+/* recibe la matriz filtro y realiza la convolucion
+    si gris es true entonces el efecto lo aplica a escala de grises
+*/
+function convolucion(filtro, tam, escalaGris){
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
-    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
-    var tam = 3;
-    var filtro = Array(tam*tam);
-    limpiarArreglo(filtro);
-    var valor = num2.value.toLowerCase();
-    var tipoBorde = valor =="vertical" ? 7: (valor =="horizontal" ? 5 : valor =="diagonal" ? 8:4);
-    filtro[4] = Number(num1.value);
-    if(tipoBorde == 4){ // todos los bordes
-        filtro[7] = -Number(num1.value);
-        filtro[5] = -Number(num1.value);
-        filtro[8] = -Number(num1.value);
-        filtro[4] = Number(num1.value)*3; // para cacular los bordes totales se necesita mayor informacion del pixel de enmedio
-    }else{ 
-        filtro[tipoBorde] = -Number(num1.value);
+    if(escalaGris){
+        gris();
     }
+    image4 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    var pixelesRes = image4.data;
+    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
     var sum = sumaMatriz(filtro);
     //console.log(filtro);
     //console.log(pixeles);
@@ -1036,39 +1027,39 @@ function trazar(){
     //console.log(i!=image3.width-(tam -1));
     //console.log(j!=image3.height-(tam-1));
     var ban=0
-   for( var j = 0 ; j< image3.height; j++){
-        for (var i = 0 ; i < image3.width; i++){ 
-            if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
-                var intensidadR=0;
-                var intensidadG=0;
-                var intensidadB=0;
-                for(var l=0; l<tam;l++){
-                    for(var m=0; m<tam; m++){
-                        // se suman para obtener la parte de la matriz que queremos 
-                        ////////////////////////////////         (renglon matriz)+(renglon imagen)    + (columna matriz)+(columna imagen)
-                        intensidadR += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4))];
-                        intensidadG += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4) +1)];
-                        intensidadB += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + ((i*4) +2)];
-                       /* if(ban==0){
-                            console.log(intensidadR);
-                        }*/
-                        if(l==Math.floor(tam/2) && m==Math.floor(tam/2)){
-                            pixelCambio = (l*image3.width*4)+(j*image3.width*4) + (m*4) + (i*4);
-                            //console.log("pixel" + pixelCambio);
+    for( var j = 0 ; j< image3.height; j++){
+            for (var i = 0 ; i < image3.width; i++){ 
+                if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
+                    var intensidadR=0;
+                    var intensidadG=0;
+                    var intensidadB=0;
+                    for(var l=0; l<tam;l++){
+                        for(var m=0; m<tam; m++){
+                            // se suman para obtener la parte de la matriz que queremos 
+                            ////////////////////////////////         (renglon matriz)+(renglon imagen)    + (columna matriz)+(columna imagen)
+                            intensidadR += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4))];
+                            intensidadG += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + ((m*4) + (i*4) +1)];
+                            intensidadB += filtro[l*tam + m] * pixeles[((l*image3.width*4)+(j*image3.width*4)) + (m*4) + ((i*4) +2)];
+                        /* if(ban==0){
+                                console.log(intensidadR);
+                            }*/
+                            if(l==Math.floor(tam/2) && m==Math.floor(tam/2)){
+                                pixelCambio = (l*image3.width*4)+(j*image3.width*4) + (m*4) + (i*4);
+                                //console.log("pixel" + pixelCambio);
+                            }
                         }
                     }
+                    ban=1;
+                    pixelesRes[pixelCambio] = Math.abs(intensidadR)/sum;
+                    //console.log("pixel " + pixeles[pixelCambio] )
+                    pixelesRes[pixelCambio +1] = Math.abs(intensidadG)/sum;
+                    pixelesRes[pixelCambio+2] = Math.abs(intensidadB)/sum;
                 }
-                ban=1;
-                pixeles[pixelCambio] = Math.abs(intensidadR)/sum;
-                //console.log("pixel " + pixeles[pixelCambio] )
-                pixeles[pixelCambio +1] = Math.abs(intensidadG)/sum;
-                pixeles[pixelCambio+2] = Math.abs(intensidadB)/sum;
-            }
-        } 
-    }
-    canvas3.width = image3.width;
-    canvas3.height = image3.height;
-    context3.putImageData(image3,0,0);
+            } 
+        }
+        canvas3.width = image3.width;
+        canvas3.height = image3.height;
+        context3.putImageData(image4,0,0);
 }
 /* Funciones para realizar algunas operaciones */
 
@@ -1107,25 +1098,29 @@ function valoresIntensidad(){
 }
 /* Comprueba y limpia los elementos del resultado */
 function limpiarResultado(){
-    if(document.body.contains(document.getElementById("boton1"))){
+    if(configuracion.contains(document.getElementById("boton1"))){
         configuracion.removeChild(document.getElementById("boton1"));
     }
-    if(document.body.contains(document.getElementById("boton2"))){
+    if(configuracion.contains(document.getElementById("boton2"))){
         configuracion.removeChild(document.getElementById("boton2"));
     }
-    if(document.body.contains(document.getElementById("texto"))){
+    while(configuracion.contains(document.getElementById("texto"))){
         configuracion.removeChild(document.getElementById("texto"));
     }
-    if(document.body.contains(document.getElementById("texto"))){
-        configuracion.removeChild(document.getElementById("texto"));
+    if(configuracion.contains(document.getElementById("textoE"))){
+        configuracion.removeChild(document.getElementById("textoE"));
     }
-    if(document.body.contains(document.getElementById("num1"))){
+    if(configuracion.contains(document.getElementById("num1"))){
         configuracion.removeChild(document.getElementById("num1"));
     }
-    if(document.body.contains(document.getElementById("num2"))){
+    if(configuracion.contains(document.getElementById("num2"))){
         configuracion.removeChild(document.getElementById("num2"));
     }
-    errores = [];
+    if(configuracion.contains(document.getElementById("matriz"))){
+        configuracion.removeChild(document.getElementById("matriz"));
+    }
+    
+    notas.innerHTML = "";
     context3.clearRect(0, 0, canvas3.width, canvas3.height);
     context4.clearRect(0, 0, canvas4.width, canvas4.height);
     context5.clearRect(0, 0, canvas5.width, canvas5.height);
@@ -1142,7 +1137,8 @@ function gris(){
     }
 }
 
-/*calcula la intensidad maxima de un arreglo de pixeles
+/*
+calcula la intensidad maxima de un arreglo de pixeles
     recibe el arreglo de los pixeles
     retorna el valor maximo
 */
@@ -1155,7 +1151,8 @@ function maximaIntensidad(pixeles){
     }
     return max;
 }
-/*calcula la intensidad minima  de un arreglo de pixeles
+/*
+calcula la intensidad minima  de un arreglo de pixeles
     recibe el arreglo de los pixeles
     retorna el valor maximo
 */
@@ -1191,7 +1188,9 @@ function operacion(pixeles,pixeles2,numPixeles,pixelesRes,op){
     }
 }
 
-// suma el contenido de la matriz si es menor o igual a cero regresa 1
+/* 
+suma el contenido de la matriz si es menor o igual a cero regresa 1 
+*/
 function sumaMatriz(matriz){
     var sum = 0;
     var tam = matriz.length;
@@ -1217,11 +1216,12 @@ function crearMatriz(tam){
     y que num2 no sea menor que num1
 */
 function validarZona(num1,num2){
-    var ban = true;
+    if(document.body.contains(document.getElementById("texto"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("texto"));
+    }
     texto= document.createElement("p");
     texto.id = "texto";
     if ((num1 > 255 || num1 < 0) || (num2 > 255 || num2 < 0)) {
-        ban = false;
         texto.textContent ="Numero fuera de rango (0-255)"; // mostrar el mensaje de error
         configuracion.appendChild(texto);
         return false;
@@ -1230,6 +1230,64 @@ function validarZona(num1,num2){
         texto.textContent ="El segundo numero debe de ser mayor al primero";
         configuracion.appendChild(texto);
         return false;
+    }
+    return true;
+}
+
+/** Funcion para crear una matriz de inputs 
+ * Serviran para obtener los datos de la matriz filtro
+ */
+function creaMatriz(tam){
+    const dimension = tam;
+    matrizInput.id = "matriz" ;
+    configuracion.appendChild(matrizInput);
+    if(banMatriz == 0){
+        var NumeroDiv = 1	//se usara para nombrar el id de cada un de los cuadros para poder manipularlos mas facil despues
+        for(var i=0; i<dimension; i++){	//for para crear las filas
+            var fila = document.createElement("div");	// se crea el div de la fila
+            fila.id="fila";
+            fila.className= ("fila" );	// se le agrega una clase 
+                for(var j=0; j<dimension; j++){	//for para agregar los cuadros pertenecientes a la columna
+                    var cuadro = document.createElement('input'); 
+                    cuadro.type = 'number'; 
+                    cuadro.id = NumeroDiv;
+                    cuadro.className = "tam";
+                    fila.appendChild(cuadro);	//se añade cada cuadro a el div fila
+                    NumeroDiv++;
+            }// fin for de los cuadros 
+            matrizInput.appendChild(fila);	// se añade la fila al div tablero
+        }// fin for de las filas
+        banMatriz = 1;
+    }
+}
+
+function validarDesenfocar(num){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    if(num%2 == 0 || num< 0){
+        texto.textContent ="El numero debe ser un positivo impar"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    }
+    return true;
+}
+
+function validarTrazar(datos){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    for (var i=0; i <9; i++){
+        console.log(datos[i].value)
+        if(isNaN(Number(datos[i].value)) || datos[i].value == null || datos[i].value == ""){
+            texto.textContent ="Datos incompletos"; // mostrar el mensaje de error
+            configuracion.appendChild(texto);
+            return false;
+        }
     }
     return true;
 }
