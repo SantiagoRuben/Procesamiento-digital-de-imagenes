@@ -960,14 +960,48 @@ function desenfocar(){
     }
     var tam = Number(num1.value);
     var filtro = crearMatriz(tam);
-    convolucion(filtro,tam,false);
+    convolucion(filtro,tam,false,0,255);
+}
+/** 
+ * Funcion que ocupa la convolucion para detectar los bordes */
+function filtroBordes(tipo){
+    limpiarResultado();
+    var tam = 3;
+    if(tipo == 1){
+        var filtro = [-1,0,1,
+                      -1,0,1,
+                      -1,0,1];
+    }else if(tipo == 2){
+        var filtro = [5,5,5,
+                      -3,0,-3,
+                      -3,-3,-3];
+    }else if(tipo == 3){
+        var filtro = [-1,1,1,
+                      -1,-2,1,
+                      -1,1,1];
+    }else if(tipo == 4){
+        var filtro = [2,1,0,
+                      1,0,-1,
+                      0,-1,-2];
+    }else if(tipo == 5){
+        tam = 7;
+        var filtro = [0,0,-1,-1,-1,0,0,
+                      0,-2,-3,-3,-3,-2,0,
+                      -1,-3,5,5,5,-3,-1,
+                      -1,-3,5,16,5,-3,-1,
+                      -1,-3,5,5,5,-3,-1,
+                      0,-2,-3,-3,-3,-2,0,
+                      0,0,-1,-1,-1,0,0];
+    }
+    convolucion(filtro,tam,true,0,255);
 }
 /*2 parcial
-    Funciones para el filtro de traza de bordes
+    Funciones para el filtro de una matriz 3x3
 */ 
-function filtroBordes(){
+function convolucion3x3(){
     limpiarResultado();
-    notas.innerHTML = "Se debe llenar la matriz con los valores para calcular los bordes";
+    notas.innerHTML = "Se debe llenar la matriz con los valores para calcular los bordes y los limites inferior y superior \</br>"+
+                        "Los limites indican a partir de que intensidad se debe asignar 0 o 255 respectivamente";
     texto = document.createElement('p'); 
     texto.textContent = "Matriz filtro:";
     texto.id = "texto";
@@ -976,6 +1010,30 @@ function filtroBordes(){
     for (var i=1; i <= 9; i++){
         numeroMatriz[i-1] = document.getElementById(i);
     }
+     // limite inferior de la imagen (intensiddad que se igualara a 0)
+    texto = document.createElement('p'); 
+    texto.textContent = "Inferior";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input');
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.value = 0;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+     // limite superior de la imagen (intensiddad que se igualara a 255)
+    texto = document.createElement('p'); 
+    texto.textContent = "Superior";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input');
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num2";
+    nuevoNumero.className = "tam";
+    nuevoNumero.value = 255;
+    configuracion.appendChild(nuevoNumero); 
+    num2 = document.getElementById("num2");
      /* Crear el boton para que indique cuando quiere desenfocar */
      nuevoBoton = document.createElement('button'); 
      nuevoBoton.type = 'button'; 
@@ -994,7 +1052,7 @@ El numero que se lee de num2 significa
     4: bordes totales
 */
 function trazar(){
-    if(!validarTrazar(numeroMatriz)){
+    if(!validarTrazar(numeroMatriz) || !validarZona(Number(num1.value),Number(num2.value))){
         return false;
     }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
         configuracion.removeChild(document.getElementById("textoE"));
@@ -1004,13 +1062,16 @@ function trazar(){
     for(var i=0; i<9; i++){
         filtro[i] = Number(numeroMatriz[i].value);
     }
-    convolucion(filtro,tam,true);
+    convolucion(filtro,tam,true,Number(num1.value),Number(num2.value));
     
 }
 /* recibe la matriz filtro y realiza la convolucion
     si gris es true entonces el efecto lo aplica a escala de grises
+    inf y sup son los limites para convertir las intensidades
+    si es menor a inf se vuelve 0
+    si esmayor a sup se vuelve 255
 */
-function convolucion(filtro, tam, escalaGris){
+function convolucion(filtro, tam, escalaGris,inf,sup){
     image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
@@ -1029,7 +1090,7 @@ function convolucion(filtro, tam, escalaGris){
     var ban=0
     for( var j = 0 ; j< image3.height; j++){
             for (var i = 0 ; i < image3.width; i++){ 
-                if((i!=image3.width-(tam -1)) && (j!=image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
+                if((i<image3.width-(tam -1)) || (j<image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
                     var intensidadR=0;
                     var intensidadG=0;
                     var intensidadB=0;
@@ -1050,10 +1111,14 @@ function convolucion(filtro, tam, escalaGris){
                         }
                     }
                     ban=1;
-                    pixelesRes[pixelCambio] = Math.abs(intensidadR)/sum;
+                    pixelesRes[pixelCambio] = (intensidadR/sum) <= inf ? 0 : ((intensidadR/sum) >= sup ? 255:(intensidadR/sum) ) ;
                     //console.log("pixel " + pixeles[pixelCambio] )
-                    pixelesRes[pixelCambio +1] = Math.abs(intensidadG)/sum;
-                    pixelesRes[pixelCambio+2] = Math.abs(intensidadB)/sum;
+                    pixelesRes[pixelCambio +1] = (intensidadG/sum) <= inf ? 0 : ((intensidadG/sum) >= sup ? 255:(intensidadG/sum) ) ;
+                    pixelesRes[pixelCambio+2] = (intensidadB/sum) <= inf ? 0 : ((intensidadB/sum) >= sup ? 255:(intensidadB/sum) ) ;
+                }else{
+                    pixeles[j*image4.width*4 + i*4] = 0;
+                    pixeles[j*image4.width*4 + i*4 +1] = 0;
+                    pixeles[j*image4.width*4 + i*4 +2] = 0;
                 }
             } 
         }
@@ -1208,36 +1273,10 @@ function crearMatriz(tam){
     }
     return matriz;
 }
-
-/* Funciones para realizar algunas validaciones */
-
-/* Valiada el rango que hay en la funcion pintar(); 
-    Compruena que ambos numeros sean entre 0-255
-    y que num2 no sea menor que num1
-*/
-function validarZona(num1,num2){
-    if(document.body.contains(document.getElementById("texto"))){ //eliminar el mensaje de error en caso de ser necesario
-        configuracion.removeChild(document.getElementById("texto"));
-    }
-    texto= document.createElement("p");
-    texto.id = "texto";
-    if ((num1 > 255 || num1 < 0) || (num2 > 255 || num2 < 0)) {
-        texto.textContent ="Numero fuera de rango (0-255)"; // mostrar el mensaje de error
-        configuracion.appendChild(texto);
-        return false;
-    } 
-    if(num2 < num1){
-        texto.textContent ="El segundo numero debe de ser mayor al primero";
-        configuracion.appendChild(texto);
-        return false;
-    }
-    return true;
-}
-
 /** Funcion para crear una matriz de inputs 
  * Serviran para obtener los datos de la matriz filtro
  */
-function creaMatriz(tam){
+ function creaMatriz(tam){
     const dimension = tam;
     matrizInput.id = "matriz" ;
     configuracion.appendChild(matrizInput);
@@ -1259,6 +1298,36 @@ function creaMatriz(tam){
         }// fin for de las filas
         banMatriz = 1;
     }
+}
+/* Funciones para realizar algunas validaciones */
+
+/* Valiada el rango que hay en la funcion pintar(); 
+    Compruena que ambos numeros sean entre 0-255
+    y que num2 no sea menor que num1
+*/
+function validarZona(num1,num2){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    if(isNaN(num1) || isNaN(num2)){
+        texto.textContent ="Faltan datos"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    }
+    if ((num1 > 255 || num1 < 0) || (num2 > 255 || num2 < 0)) {
+        texto.textContent ="Numero fuera de rango (0-255)"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    } 
+    if(num2 < num1){
+        texto.textContent ="El segundo numero debe de ser mayor al primero";
+        configuracion.appendChild(texto);
+        return false;
+    }
+    
+    return true;
 }
 
 function validarDesenfocar(num){
