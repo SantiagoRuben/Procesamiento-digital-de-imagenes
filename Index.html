@@ -107,6 +107,13 @@
         </div>
       </div>
       <div class="subnav">
+        <button class="subnavbtn"> Codigos parcial 2 <i class="fa fa-caret-down"></i></button>
+        <div class="subnav-content">
+          <a href="#" onclick="traslacion();return false;">Traslación</a>
+          <a href="#" onclick="return false;">Rotación</a>
+        </div>
+      </div>
+      <div class="subnav">
         <button class="subnavbtn"> Suma y resta <i class="fa fa-caret-down"></i></button>
         <div class="subnav-content">
           <a href="#" onclick="sumaImagen(1);return false;">Sumar</a>
@@ -124,9 +131,10 @@
           <a href="#" onclick="filtroBordes(3);return false;">Prewitt bordes</a>
           <a href="#" onclick="filtroBordes(4);return false;">Sobel bordes</a>
           <a href="#" onclick="filtroBordes(5);return false;">Matriz gausseana</a>
-          <a href="#" onclick="convolucion3x3();return false;">Convolución 3x3</a>
+          <a href="#" onclick="convolucionNxN();return false;">Convolución NxN</a>
         </div>
       </div>
+      
     </div>
     <!-- Comienza el cuerpo de la pagina-->
     <div class="nota" id="nota">Para empezar a utiliizar los efectos es necesario cargar primero las imagenes y despues aplicar el efecto deseado.
