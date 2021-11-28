@@ -28,7 +28,7 @@ body
 /*Tamaño de algunos elementos de configuracion para los efectos*/
 .tam{
     height: 20px;
-    width: 70px;
+    width: 80px;
 }
 /* estilos para la matriz de convoluciones*/
 .matriz {
