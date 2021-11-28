@@ -30,7 +30,8 @@ var boton2;
 //recupera los inputs con los numeros 
 var num1;
 var num2;
-var numeroMatriz = [];
+//var numeroMatriz = [];
+var numeroMatriz;
 var banSeleccionZona = 0 ; // indica si se va a empezar a realizar la funcion seleccionZona
 //posicion del mouse
 var posicionX;
@@ -578,6 +579,7 @@ function moverHistograma(){
         configuracion.appendChild(texto);
     }else{
         /* Crear los botones para aumentar o disminuir la luz (mover el histograma) */
+        nuevoBoton = document.createElement('button'); 
         nuevoBoton.type = 'button'; 
         nuevoBoton.id = "boton1"
         nuevoBoton.innerText = '-'; 
@@ -998,18 +1000,25 @@ function filtroBordes(tipo){
 /*2 parcial
     Funciones para el filtro de una matriz 3x3
 */ 
-function convolucion3x3(){
+function convolucionNxN(){
     limpiarResultado();
-    notas.innerHTML = "Se debe llenar la matriz con los valores para calcular los bordes y los limites inferior y superior \</br>"+
-                        "Los limites indican a partir de que intensidad se debe asignar 0 o 255 respectivamente";
+    notas.innerHTML = "Ingresar la matriz en el area de texto, las columna separados por un espacio y las filas por un salto de line (enter).\</br>"+
+                        "Tambien indicar el limite inferior y superir, los limites indican a partir de que intensidad se debe asignar 0 o 255 respectivamente";
     texto = document.createElement('p'); 
     texto.textContent = "Matriz filtro:";
     texto.id = "texto";
     configuracion.appendChild(texto);
-    creaMatriz(3);
+    
+    //Se crea el text area donde ingresaran la matriz
+    var textArea = document.createElement('textarea');
+    textArea.style = "width:256px;height:136px;"
+    textArea.id = "matriz";
+    configuracion.appendChild(textArea);
+    numeroMatriz = document.getElementById("matriz");
+    /*creaMatriz(3);
     for (var i=1; i <= 9; i++){
         numeroMatriz[i-1] = document.getElementById(i);
-    }
+    }*/
      // limite inferior de la imagen (intensiddad que se igualara a 0)
     texto = document.createElement('p'); 
     texto.textContent = "Inferior";
@@ -1052,16 +1061,19 @@ El numero que se lee de num2 significa
     4: bordes totales
 */
 function trazar(){
-    if(!validarTrazar(numeroMatriz) || !validarZona(Number(num1.value),Number(num2.value))){
+    var tam;
+    var filtro = [];
+    if(!validarTrazar(numeroMatriz.value,filtro) || !validarZona(Number(num1.value),Number(num2.value))){
         return false;
     }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
         configuracion.removeChild(document.getElementById("textoE"));
     }
-    var tam = 3;
-    var filtro = [];
-    for(var i=0; i<9; i++){
+    var tam = numeroMatriz.value.split("\n").length;
+    console.log(tam);
+    console.log(filtro);
+    /*for(var i=0; i<9; i++){
         filtro[i] = Number(numeroMatriz[i].value);
-    }
+    }*/
     convolucion(filtro,tam,true,Number(num1.value),Number(num2.value));
     
 }
@@ -1126,6 +1138,73 @@ function convolucion(filtro, tam, escalaGris,inf,sup){
         canvas3.height = image3.height;
         context3.putImageData(image4,0,0);
 }
+/** Parcial 2
+ * funcion que muestra la configuracion para realizar la traslacion de la imagen
+ */
+function traslacion(){
+    limpiarResultado();
+    notas.innerHTML = "En la pantalla se muestran dos recuadros donde deberá ingresar la cantidad de unidades que se desea desplazar.\<br/>"+
+                        "El primer recuadro es para desplazarse de forma horizontal y el segundo de forma vertical.\<br/>"+
+                        "Para desplazarse a la izquierda o la derecha se deben ingresar numeros negativos.";
+    /* Crear los inputs para leer los datos que delimitan la intensidad */
+    nuevoNumero = document.createElement('input');
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = 0;
+    configuracion.appendChild(nuevoNumero); 
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num2";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = 0;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+    num2 = document.getElementById("num2");
+    /* Crear el boton para que indique cuando quiere realizar la traslacion */
+    nuevoBoton = document.createElement('button'); 
+    nuevoBoton.type = 'button'; 
+    nuevoBoton.id = "boton1";
+    nuevoBoton.className = "tam";
+    nuevoBoton.innerText = 'Trasladar'; 
+    nuevoBoton.onclick = function(){trasladar()}; 
+    configuracion.appendChild(nuevoBoton);   
+    boton1 = document.getElementById("boton1");  
+}
+/** Parcial2
+ * Funcion que realiza la tralacion 
+ * se obtiene los valores para trasladar se obtiene de los inputs de la pagina
+ */
+function trasladar(){
+    if(!validarNumeros(Number(num1.value),Number(num2.value))){
+        return false;
+    }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    image4 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    var pixelesRes = image4.data;
+    imagenNegro(image4);
+    for( var j = 0 ; j< image3.height; j++){
+        for (var i = 0 ; i < image3.width; i++){ 
+           var tempx = i + Number(num1.value);
+           var tempy = j + Number(num2.value);
+           
+           if(tempx>=0 && tempx<image3.width && tempy>=0 && tempy<image3.height){
+                pixelesRes[tempy*image4.width*4 + tempx*4] = pixeles[j*image3.width*4 + i*4];
+                pixelesRes[tempy*image4.width*4 + tempx*4 +1] = pixeles[j*image3.width*4 + i*4 +1]
+                pixelesRes[tempy*image4.width*4 + tempx*4 +2] = pixeles[j*image3.width*4 + i*4 +2]
+           }
+        } 
+    }
+
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    context3.putImageData(image4,0,0);
+}
+
 /* Funciones para realizar algunas operaciones */
 
 /* Poner el arregle en ceros */
@@ -1273,10 +1352,20 @@ function crearMatriz(tam){
     }
     return matriz;
 }
+/** Funcion para poner una imagen en negro */
+function imagenNegro(imagen){ 
+    var pixel = imagen.data;
+    var numPixel = imagen.width * imagen.height;
+    for (var i = 0; i < numPixel*4; i+=4){ 
+        pixel[i] = 0;
+        pixel [i+1] = 0;
+        pixel[i+2] = 0;
+    }
+}
 /** Funcion para crear una matriz de inputs 
  * Serviran para obtener los datos de la matriz filtro
  */
- function creaMatriz(tam){
+/* function creaMatriz(tam){
     const dimension = tam;
     matrizInput.id = "matriz" ;
     configuracion.appendChild(matrizInput);
@@ -1298,7 +1387,8 @@ function crearMatriz(tam){
         }// fin for de las filas
         banMatriz = 1;
     }
-}
+}*/
+
 /* Funciones para realizar algunas validaciones */
 
 /* Valiada el rango que hay en la funcion pintar(); 
@@ -1311,11 +1401,6 @@ function validarZona(num1,num2){
     }
     texto= document.createElement("p");
     texto.id = "textoE";
-    if(isNaN(num1) || isNaN(num2)){
-        texto.textContent ="Faltan datos"; // mostrar el mensaje de error
-        configuracion.appendChild(texto);
-        return false;
-    }
     if ((num1 > 255 || num1 < 0) || (num2 > 255 || num2 < 0)) {
         texto.textContent ="Numero fuera de rango (0-255)"; // mostrar el mensaje de error
         configuracion.appendChild(texto);
@@ -1327,6 +1412,21 @@ function validarZona(num1,num2){
         return false;
     }
     
+    return true;
+}
+
+//valida que no vengan vacio los numeros
+function validarNumeros(num1,num2){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    if(isNaN(num1) || isNaN(num2)){
+        texto.textContent ="Faltan datos"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    }
     return true;
 }
 
@@ -1344,7 +1444,7 @@ function validarDesenfocar(num){
     return true;
 }
 
-function validarTrazar(datos){
+/*function validarTrazar(datos){
     if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
         configuracion.removeChild(document.getElementById("textoE"));
     }
@@ -1358,5 +1458,35 @@ function validarTrazar(datos){
             return false;
         }
     }
+    return true;
+}*/
+/** aparte de validar llena la matriz y el tamaño*/
+function validarTrazar(datos,matriz){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    var indice = 0;
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    var filas = datos.split("\n");
+    var tam = filas.length;
+    if(tam %2 ==0){
+        texto.textContent = "La matriz debe ser de dimension impar" 
+        configuracion.appendChild(texto);
+        return false;
+    }
+    for(var i=0; i<tam; i++){
+        var elemento = filas[i].split(" ");
+        if(elemento.length != tam){
+            texto.textContent = "Datos incompletos, en la fila" 
+            configuracion.appendChild(texto);
+            return false;
+        }
+        for(var j=0; j<tam; j++){
+            matriz[indice] = Number(elemento[j]);
+            indice++;
+        }
+    }
+    //console.log(matriz);
     return true;
 }
