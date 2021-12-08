@@ -10,132 +10,144 @@
   </head>
   <body>
     <!-- Menu -->
-    <div class="navbar">
-      <a href='Manual_de_usuario_PDI.pdf'> Manual </a>
-      <div class="subnav">
-        <!--Submenu para seleccionar las imagenes-->
-        <button class="subnavbtn"> Cargar Imagenes <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-            <a>
-              Imagen 1
-              <input type="file" id="imagen1" accept=".jpg,.jpeg,.png" multiple>
-            </a>            
-            <a>
-              Imagen 2
-              <input type="file" id="imagen2" accept=".jpg,.jpeg,.png" multiple>
-            </a>
-        </div>
-      </div>
-      <div class="subnav">
+    <div id="header">
+			<ul class="nav">
+				<li><a href='Manual_de_usuario_PDI.pdf'> Manual </a></li>
+				<li><a href="#">Cargar Imagenes</a>
+					<ul>
+						<li><a>
+                  Imagen 1
+                  <input type="file" id="imagen1" accept=".jpg,.jpeg,.png" multiple>
+                </a> </li>
+						<li><a>
+                  Imagen 2
+                  <input type="file" id="imagen2" accept=".jpg,.jpeg,.png" multiple>
+                </a></li>
+          </ul>
         <!-- Submenu para elegir los colores para colorear y gradiente-->
-        <button class="subnavbtn"> Elegir colores <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-            <a>
-              Color 1
-              <input type="color" id="color1" value="#000000">
-            </a>            
-            <a>
-              Color 2
-              <input type="color" id="color2" value="#ffffff">
-            </a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Codigos <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="escalaGris(true);return false;">Escala de girses</a>
-          <a href="#" onclick="negativo();return false;">Negativo</a>
-          <a href="#" onclick="colorear();return false;"> Colorear</a>
-          <a href="#" onclick="gradiente(1);return false;"> Gradiente horizontal</a>
-          <a href="#" onclick="gradiente(2);return false;"> Gradiente vertical</a>
-          <a href="#" onclick="ecualizarGris();return false;"> Ecualizar gris</a>
-          <a href="#" onclick="ecualizarColor();return false;"> Ecualizar color</a>
-          <a href="#" onclick="seleccionZona();return false;"> Seleccion de zona</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <!--Submenu para los codigos de separa los colores-->
-        <button class="subnavbtn"> Separar colores <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="seleccionColor(1);return false;">Rojo</a>
-          <a href="#" onclick="seleccionColor(2);return false;">Verde</a>
-          <a href="#" onclick="seleccionColor(3);return false;">Azul</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <!--Submenu para los codigos de operadores logicos-->
-        <button class="subnavbtn"> Operadores logicos <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="operadorLogico(1);return false;">And</a>
-          <a href="#" onclick="operadorLogico(2);return false;">Or</a>
-          <a href="#" onclick="operadorLogico(3);return false;">Xor</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Histogramas <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="mostrarHistogramaGris(true);return false;">Mostrar histograma grises</a>
-          <a href="#" onclick="mostrarHistogramaColor();return false;">Mostrar histograma color</a>
-          <a href="#" onclick="moverHistograma();return false;">Mover histograma</a>
-          <a href="#" onclick="pintarZona();return false;">Pintar una zona</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Bordes Gris <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="bordesGris(1);return false;">Verticales</a>
-          <a href="#" onclick="bordesGris(2);return false;">Horizontales</a>
-          <a href="#" onclick="bordesGris(3);return false;">Diagonales</a>
-          <a href="#" onclick="bordesGris(4);return false;">Maximo</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Bordes Color <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="bordesColor(1);return false;">Verticales</a>
-          <a href="#" onclick="bordesColor(2);return false;">Horizontales</a>
-          <a href="#" onclick="bordesColor(3);return false;">Diagonales</a>
-          <a href="#" onclick="bordesColor(4);return false;">Maximo</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Escala <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="reducir(2);return false;">1/2</a>
-          <a href="#" onclick="reducir(4);return false;">1/4</a>
-          <a href="#" onclick="reducir(8);return false;">1/8</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Codigos parcial 2 <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="traslacion();return false;">Traslación</a>
-          <a href="#" onclick="return false;">Rotación</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Suma y resta <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="sumaImagen(1);return false;">Sumar</a>
-          <a href="#" onclick="sumaImagen(2);return false;">Sumar normalizada</a>
-          <a href="#" onclick="restaImagen(1);return false;">Resta</a>
-          <a href="#" onclick="restaImagen(2);return false;">Resta normalizada</a>
-        </div>
-      </div>
-      <div class="subnav">
-        <button class="subnavbtn"> Filtros <i class="fa fa-caret-down"></i></button>
-        <div class="subnav-content">
-          <a href="#" onclick="filtroMedio();return false;">Desenfocar</a>
-          <a href="#" onclick="filtroBordes(1);return false;">Faler bordes</a>
-          <a href="#" onclick="filtroBordes(2);return false;">Kirsch bordes</a>
-          <a href="#" onclick="filtroBordes(3);return false;">Prewitt bordes</a>
-          <a href="#" onclick="filtroBordes(4);return false;">Sobel bordes</a>
-          <a href="#" onclick="filtroBordes(5);return false;">Matriz gausseana</a>
-          <a href="#" onclick="convolucionNxN();return false;">Convolución NxN</a>
-        </div>
-      </div>
-      
-    </div>
+				<li><a href="#">Elegir colores</a>
+					<ul>
+						<li><a>
+                Color 1
+                <input type="color" id="color1" value="#000000">
+              </a> </li>
+						<li><a>
+                Color 2
+                <input type="color" id="color2" value="#ffffff">
+              </a></li>
+					</ul>
+				</li>
+				<li><a href="#">Codigos</a>
+          <ul> 
+            <li><a href="#" onclick="escalaGris(true);return false;">Escala de grises</a></li>
+            <li><a href="#" onclick="negativo();return false;">Negativo</a></li>
+            <li><a href="#" onclick="colorear();return false;"> Colorear</a></li>
+            <li><a href="#"> Gradiente</a>
+              <ul>
+                <li><a href="#" onclick="gradiente(1);return false;"> Horizontal</a></li>
+                <li><a href="#" onclick="gradiente(2);return false;"> Vertical</a></li>
+              </ul>
+            </li>
+            <li><a>Ecualizar</a>
+              <ul>
+                <li><a href="#" onclick="ecualizarGris();return false;"> Escala gris</a></li>
+                <li><a href="#" onclick="ecualizarColor();return false;"> A color</a></li>
+              </ul>
+            </li>
+            <li><a href="#" onclick="seleccionZona();return false;"> Seleccion de zona</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Separar colores</a>
+          <ul> 
+            <li><a href="#" onclick="seleccionColor(1);return false;">Rojo</a></li>
+            <li><a href="#" onclick="seleccionColor(2);return false;">Verde</a></li>
+            <li><a href="#" onclick="seleccionColor(3);return false;">Azul</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Operadores logicos</a>
+          <ul> 
+            <li><a href="#" onclick="operadorLogico(1);return false;">And</a></li>
+            <li><a href="#" onclick="operadorLogico(2);return false;">Or</a></li>
+            <li><a href="#" onclick="operadorLogico(3);return false;">Xor</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Histogramas</a>
+          <ul> 
+            <li><a href="#" onclick="mostrarHistogramaGris(true);return false;">Mostrar histograma grises</a></li>
+            <li><a href="#" onclick="mostrarHistogramaColor();return false;">Mostrar histograma color</a></li>
+            <li><a href="#" onclick="moverHistograma();return false;">Mover histograma</a></li>
+            <li><a href="#" onclick="pintarZona();return false;">Pintar una zona</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Bordes</a>
+          <ul> 
+            <li><a href="#">Escala de girses</a>
+              <ul>
+                <li><a href="#" onclick="bordesGris(1);return false;">Verticales</a></li>
+                <li><a href="#" onclick="bordesGris(2);return false;">Horizontales</a></li>
+                <li><a href="#" onclick="bordesGris(3);return false;">Diagonales</a></li>
+                <li><a href="#" onclick="bordesGris(4);return false;">Maximo</a></li>
+              </ul>            
+            </li>
+            <li><a href="#">A color</a>
+              <ul>
+                <li><a href="#" onclick="bordesColor(1);return false;">Verticales</a></li>
+                <li><a href="#" onclick="bordesColor(2);return false;">Horizontales</a></li>
+                <li><a href="#" onclick="bordesColor(3);return false;">Diagonales</a></li>
+                <li><a href="#" onclick="bordesColor(4);return false;">Maximo</a></li>
+              </ul>            
+            </li>
+          </ul>
+        </li>
+        <li><a href="#"> Escala</a>
+          <ul> 
+            <li><a href="#" onclick="reducir(2);return false;">1/2</a></li>
+            <li><a href="#" onclick="reducir(4);return false;">1/4</a></li>
+            <li><a href="#" onclick="reducir(8);return false;">1/8</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Geometricos</a>
+          <ul> 
+            <li><a href="#" onclick="traslacionConfig();return false;">Traslación</a></li>
+            <li><a href="#" onclick="return false;">Escalar</a></li>
+            <li><a href="#" onclick="rotacionConfig();return false;">Rotación</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Aritmeticos</a>
+          <ul> 
+            <li><a href="#" onclick="sumaImagen(2);return false;">Suma normalizada</a></li>
+            <li><a href="#">Resta</a>
+              <ul>
+                <li><a href="#" onclick="restaImagen(1);return false;">Sin normalizar</a></li>
+                <li><a href="#" onclick="restaImagen(2);return false;">Normalizada</a>  </li>
+              </ul>            
+            </li>
+          </ul>
+        </li>
+        <li><a href="#"> Filtros</a>
+          <ul> 
+            <li><a href="#" onclick="filtroMedio();return false;">Desenfocar</a></li>
+            <li><a href="#">Bordes</a>
+              <ul>
+                <li><a href="#" onclick="filtroBordes(1);return false;">Faler</a></li>
+                <li><a href="#" onclick="filtroBordes(2);return false;">Kirsch</a></li>
+                <li><a href="#" onclick="filtroBordes(3);return false;">Prewitt</a></li>
+                <li><a href="#" onclick="filtroBordes(4);return false;">Sobel</a></li>
+                <li><a href="#" onclick="filtroBordes(5);return false;">Matriz gausseana</a></li>
+              </ul>            
+            </li>
+            <li><a href="#" onclick="filtroBordes(6);return false;">Pasa baja</a></li>
+            <li> <a href="#" onclick="filtroBordes(7);return false;">Pasa alta</a></li>
+          </ul>
+        </li>
+        <li><a href="#"> Convolución manual</a>
+          <ul> 
+            <li><a href="#" onclick="convolucionNxN();return false;">Convolución NxN</a></li>
+            <li><a href="#" onclick="convolucionNxN();return false;">Convolución NxN aumentando imagen</a></li>
+          </ul>
+        </li>
+			</ul>
+		</div>
     <!-- Comienza el cuerpo de la pagina-->
     <div class="nota" id="nota">Para empezar a utiliizar los efectos es necesario cargar primero las imagenes y despues aplicar el efecto deseado.
         <br /> Hay algunos efectos en el que son necesario dos imagenes del mismo tamaño para poder aplicarlos. 
@@ -156,6 +168,10 @@
       <canvas id ="canvas5"   class="responsive"  ></canvas>
       <canvas id ="canvas6" class="responsive"  ></canvas>
     </div>
+    <div class="slidecontainer" id ="slidecontainer">
+        <input type="range" min="0" max="360" value="0" class="slider" id="myRange">
+        <p style="font-size:18px">Grados: <span class="tam" id="grados"></span></p>
+      </div>
     <script type="text/javascript" src="PDI.js"></script>
   </body>
 </html>
