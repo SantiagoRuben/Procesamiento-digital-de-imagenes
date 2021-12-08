@@ -24,6 +24,9 @@ var texto = document.createElement("p");
 var nuevoNumero;
 const matrizInput = document.createElement("div"); // se crea el div donde se dibujara la matriz para bordes
 var banMatriz = 0; //indica si agregar los elementos para la matriz o si ya han sido agregados
+var slider = document.getElementById("myRange"); // barra para los grados de rotacion
+var output = document.getElementById("grados"); // numero de grados actuales
+var sliderContainer = document.getElementById("slidecontainer"); // div con toda la informaciondel trackbar
 //recupera los botones que desplazan al histograma
 var boton1;
 var boton2;
@@ -67,6 +70,11 @@ var color1 = document.getElementById('color1');
 color1.addEventListener('change', actualizarColor1); 
 var color2 = document.getElementById('color2');
 color2.addEventListener('change', actualizarColor2); 
+
+/** se aplican algunas configuraciones al cargar la pagina */
+window.onload= function init(){
+    document.body.removeChild(sliderContainer); //removemos la trackBar hasta que se ocupe ese efecto
+}
 /*Funciones para el cargado de imagenes */
 function CargarImagen1(){
     limpiarResultado();
@@ -994,6 +1002,15 @@ function filtroBordes(tipo){
                       -1,-3,5,5,5,-3,-1,
                       0,-2,-3,-3,-3,-2,0,
                       0,0,-1,-1,-1,0,0];
+    }//las matrices son para pasa alta
+    else if(tipo == 6){
+        var filtro = [-1,-1,-1,
+                      -1,9,-1,
+                      -1,-1,-1];
+    } else if(tipo == 7){   //pasa bajas
+        var filtro = [1,4,1,
+                      4,12,4,
+                      1,4,1];
     }
     convolucion(filtro,tam,true,0,255);
 }
@@ -1141,7 +1158,7 @@ function convolucion(filtro, tam, escalaGris,inf,sup){
 /** Parcial 2
  * funcion que muestra la configuracion para realizar la traslacion de la imagen
  */
-function traslacion(){
+function traslacionConfig(){
     limpiarResultado();
     notas.innerHTML = "En la pantalla se muestran dos recuadros donde deberá ingresar la cantidad de unidades que se desea desplazar.\<br/>"+
                         "El primer recuadro es para desplazarse de forma horizontal y el segundo de forma vertical.\<br/>"+
@@ -1204,6 +1221,103 @@ function trasladar(){
     canvas3.height = image3.height;
     context3.putImageData(image4,0,0);
 }
+/** Parcial2
+ * Funcion para desplegar las configuraciones de rotación
+ */
+ function rotacionConfig(){
+    limpiarResultado();
+    notas.innerHTML = "En la pantalla se muestran un trackBar para designar el angulo a rotar.\<br/>"+
+                        "El angulo podra ir desde 0 hasta 360.\<br/>";
+    /* añade el trackbar para determinar el angulo de rotacion*/
+    configuracion.appendChild(sliderContainer);
+    output.innerHTML = slider.value;
+     //mostrar la imagen original para
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    canvas3.width = image3.width;
+    canvas3.height = image3.height;
+    var escalaGris= true;
+    if(escalaGris){
+        gris();
+    }
+    context3.putImageData(image3,0,0);
+}
+slider.oninput = function() {
+    var grados = Number(slider.value);
+    output.innerHTML = grados;
+    //dimensiones de la imgen originales
+    var filas = image3.height;
+    var columnas = image3.width;
+    //console.log("filas: " + filas);
+    //console.log("col: " + columnas);
+    //nuevas dimensiones de la imagen 
+    var nDF = filas * Math.abs(coseno(grados)) + columnas * Math.abs(seno(grados));
+    //console.log("seno : " + Math.sin(grados * Math.PI/180).toFixed(10))
+    //console.log("cos: " +Math.cos(grados * Math.PI/180).toFixed(10) )
+    var nDC = filas * Math.abs(seno(grados)) + columnas * Math.abs(coseno(grados));
+    //console.log("nDC: " + nDC);
+    //console.log("nDF: " + nDF);
+    //crear la nueva imagen
+    image4 = context2.createImageData(nDC,nDF);
+   // console.log("image4.whidt: " + image4.width);
+   // console.log("image4.heigt: " + image4.height);
+    var pixelesRes = image4.data;
+    //console.log( image4.data);
+   // console.log("pixeles: " + image4.width*image4.height)
+    //calcular el centro de la nueva imagen
+    var refx = nDC/2;
+    var refy = nDF/2;
+    //calcular el despalzamiento respecto al centro de las imagenes
+    var xoffset = refx - columnas/2;
+    var yoffset = refy - filas/2;
+    //console.log("xoffset: " + xoffset);
+    //console.log("yoffset: " + yoffset);
+    //realizar el mapeo de los nuevos pixelesRes
+    imagenNegro(image4); 
+    var ban = 0;  
+    for( var j = 0 ; j< image3.height; j++){
+        for (var i = 0 ; i < image3.width; i++){   //x es y, y es x
+            //obtener las nuevas posiciones
+            var nuevax = i - refx + xoffset;
+            var nuevay = j - refy + yoffset;
+            //corregir los indices
+            var xprima = refx + nuevax * coseno(grados) + nuevay * seno(grados);
+            var yprima = refy +  nuevax * -seno(grados) + nuevay * coseno(grados);
+            //interpolar para enconcontrar los indices y evitar tantos pixeles sin asignar
+            var punto11 = {x:Math.floor(xprima), y:Math.floor(yprima)};
+            var punto12 = {x:Math.floor(xprima), y:Math.ceil(yprima)};
+            var punto21 = {x:Math.ceil(xprima), y:Math.floor(yprima)};
+            var punto22 = {x:Math.ceil(xprima), y:Math.ceil(yprima)};
+
+            var R1 = {x:xprima, y:interpolacionX(punto11,punto21,xprima)};
+            var R2 = {x:xprima, y:interpolacionX(punto12,punto22,xprima)};
+            var fraccionY =  yprima - R1.y;
+            var unoMenosfraccionY = 1 - fraccionY;
+            var yAux = unoMenosfraccionY * R1.y + fraccionY*R2.y;
+            var P  = {x:interpolacionY(R1,R2,yAux), y:yAux};
+           //   var nuevaIntensidad = interpolacionBilineal(punto11,punto21,punto12,punto22,P.x,P.y,image3);
+            xprima = Math.round(P.x);
+            yprima = Math.round(P.y);
+            if(ban==0){
+                //var nuevaIntensidad = interpolacionBilineal(punto11,punto21,punto12,punto22,P.x,P.y,image3);
+                console.log("xprima: " + xprima);
+                console.log("yprima: " + yprima);      
+                ban =2
+            }
+   
+           if(xprima>=0 && xprima<nDC && yprima>=0 && yprima<nDF){             
+                pixelesRes[yprima*image4.width*4 + xprima*4] = pixeles[j*image3.width*4 + i*4] //nuevaIntensidad.R;
+                pixelesRes[yprima*image4.width*4 + xprima*4 +1] = pixeles[j*image3.width*4 + i*4 +1] //nuevaIntensidad.G;
+                pixelesRes[yprima*image4.width*4 + xprima*4 +2] = pixeles[j*image3.width*4 + i*4 +2] //nuevaIntensidad.B;
+           }
+        } 
+    }
+    //console.log( image4.data);
+    canvas3.width = image4.width;
+    canvas3.height = image4.height;
+    context3.putImageData(image4,0,0);
+}
 
 /* Funciones para realizar algunas operaciones */
 
@@ -1263,7 +1377,10 @@ function limpiarResultado(){
     if(configuracion.contains(document.getElementById("matriz"))){
         configuracion.removeChild(document.getElementById("matriz"));
     }
-    
+    if(configuracion.contains(sliderContainer)){
+        configuracion.removeChild(sliderContainer);
+        slider.value = 0;
+    }
     notas.innerHTML = "";
     context3.clearRect(0, 0, canvas3.width, canvas3.height);
     context4.clearRect(0, 0, canvas4.width, canvas4.height);
@@ -1360,7 +1477,57 @@ function imagenNegro(imagen){
         pixel[i] = 0;
         pixel [i+1] = 0;
         pixel[i+2] = 0;
+        pixel[i+3] = 255;
     }
+}
+
+function coseno(x){
+    return Math.cos(x * Math.PI/180);
+
+}
+function seno(x){
+    return Math.sin(x * Math.PI/180);
+}
+/** Encuentra la coordenada y
+ * punto1 : coordenadas del primer punto
+ * punto12: coordenadas del segundo punto
+ * x: coordenada x del punto requerido
+ * regresa la coordena y del punto requerido
+ */
+function interpolacionX(punto1,punto2,x){
+    var y;
+    var divisor = punto2.x-punto1.x == 0 ? 1 : punto2.x-punto1.x;
+    y = punto1.y + ((punto2.y-punto1.y )/(divisor) * (x-punto1.x));
+    return y;
+}
+
+function interpolacionY(punto1,punto2,y){
+    var x;
+    var divisor = punto2.y-punto1.y  == 0 ? 1 : punto2.y-punto1.y;
+    x = punto1.x + ((punto2.x-punto1.x)/(divisor) * (y-punto1.y));
+    return x;
+}
+/** Funcion que retorna el nuevo nivel de intensidad dado los cuatro puntos vecinos al punto obtenido x,y */
+function interpolacionBilineal(punto1,punto2,punto3,punto4,x,y,image){
+    var imageData = image.data;
+    var fraccionX = x - punto1.x;
+    var fraccionY = y - punto1.y;
+    var unoMenosfraccionX = 1 - fraccionX;
+    var unoMenosfraccionY = 1 - fraccionY;
+
+    //obtenemos las intencidades de R1
+    var rp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4]);
+    var gp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +1] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +1]);
+    var bp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +2] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +2]);
+    //obtenemos las intencidades de R2
+    var rp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4]);
+    var gp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +1] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +1]);
+    var bp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +2] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +2]);
+    //obtenemos las intencidades del punto que queremos encontrar
+    var rp3 = Math.round(unoMenosfraccionY * rp1 + fraccionY * rp2);
+    var gp3 = Math.round(unoMenosfraccionY * gp1 + fraccionY * gp2);
+    var bp3 = Math.round(unoMenosfraccionY * bp1 + fraccionY * bp2);
+    return {R:rp3, G:gp3, B:bp3};
 }
 /** Funcion para crear una matriz de inputs 
  * Serviran para obtener los datos de la matriz filtro
