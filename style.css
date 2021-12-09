@@ -55,9 +55,15 @@ body
     color: rgb(194, 213, 248);
     margin-left: 50px;;
 }
+:root {
+  --ancho: 650px;
+  --alto: 350px;
+  --margen-izquierdo: 10px;
+}
 .zonaSeleccion{
-    width: 650px;
-    height: 350px;
+    width: var(--ancho);
+    height: var(--alto);
+    margin-left: var(--margen-izquierdo);
 }
 .img-wrap{ 
     margin-top: 40px;
