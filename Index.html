@@ -99,7 +99,7 @@
             </li>
           </ul>
         </li>
-        <li><a href="#"> Escala</a>
+        <li><a href="#">Reducir</a>
           <ul> 
             <li><a href="#" onclick="reducir(2);return false;">1/2</a></li>
             <li><a href="#" onclick="reducir(4);return false;">1/4</a></li>
@@ -109,7 +109,13 @@
         <li><a href="#"> Geometricos</a>
           <ul> 
             <li><a href="#" onclick="traslacionConfig();return false;">Traslación</a></li>
-            <li><a href="#" onclick="return false;">Escalar</a></li>
+            <li><a href="#" >Escalar</a>
+              <ul>
+                <li><a href="#" onclick="escalar(2);return false;">x2</a></li>
+                <li><a href="#" onclick="escalar(4);return false;">x4</a></li>
+                <li><a href="#" onclick="escalar(8);return false;">x8</a></li>
+              </ul>
+            </li>
             <li><a href="#" onclick="rotacionConfig();return false;">Rotación</a></li>
           </ul>
         </li>
@@ -127,6 +133,7 @@
         <li><a href="#"> Filtros</a>
           <ul> 
             <li><a href="#" onclick="filtroMedio();return false;">Desenfocar</a></li>
+            <li><a href="#" onclick="medianaConfig();return false;">Mediana</a></li>
             <li><a href="#">Bordes</a>
               <ul>
                 <li><a href="#" onclick="filtroBordes(1);return false;">Faler</a></li>
@@ -142,8 +149,8 @@
         </li>
         <li><a href="#"> Convolución manual</a>
           <ul> 
-            <li><a href="#" onclick="convolucionNxN();return false;">Convolución NxN</a></li>
-            <li><a href="#" onclick="convolucionNxN();return false;">Convolución NxN aumentando imagen</a></li>
+            <li><a href="#" onclick="convolucionNxN(false);return false;">Convolución NxN</a></li>
+            <li><a href="#" onclick="convolucionNxN(true);return false;">Convolución NxN aumentando imagen</a></li>
           </ul>
         </li>
 			</ul>
@@ -154,7 +161,7 @@
     </div>
     <div class="img-wrap" > 
       <!--Imagenes que ingresa el usuario-->
-      <canvas id ="canvas1"   class="responsive" ></canvas>
+      <canvas id ="canvas1"   class="responsive"  ></canvas>
       <canvas id ="canvas2" class="responsive"  ></canvas>
     </div>
     <div  id="configuracion" class="img-wrap"></div>
