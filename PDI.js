@@ -370,6 +370,9 @@ function seleccionZona(){
     banSeleccionZona = 1;
     //se cambia la clase para tener mayor control al momento de normalizar la posicion del mouse
     canvas3.className = "zonaSeleccion";
+    canvas3.style.setProperty("--ancho", '650px');
+    canvas3.style.setProperty("--alto", '350px');
+    canvas3.style.setProperty("--margen-izquierdo", '10px');
     canvas4.className = "zonaSeleccion";
 }
 //funcion que se ejecuta con el clic del mouse
@@ -970,13 +973,68 @@ function desenfocar(){
     }
     var tam = Number(num1.value);
     var filtro = crearMatriz(tam);
-    convolucion(filtro,tam,false,0,255);
+    convolucion(filtro,tam,false,0,255,false);
+}
+/** Parcial 2
+ * funcion que crea la configuracion para calcular la mediana a trves de l triangulo de pascal
+ */
+function medianaConfig(){
+    limpiarResultado();
+    notas.innerHTML = "Antes de dar clic en Trazar, es necesario que ingrese el numero del renglón del triangulo de pascal que desea utilizar para el filtro.\<br/>"+
+                        "Este efecto puede tardar mas, dependiendo del renglon elegido.";
+    texto = document.createElement('p'); 
+    texto.textContent = "Renglon elegido";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.value = 2;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+     /* Crear el boton para que indique el renglon seleccionado */
+     nuevoBoton = document.createElement('button'); 
+     nuevoBoton.type = 'button'; 
+     nuevoBoton.id = "boton1";
+     nuevoBoton.className = "tam";
+     nuevoBoton.innerText = 'Trazar'; 
+     nuevoBoton.onclick = function(){filtroMediana()}; 
+     configuracion.appendChild(nuevoBoton);   
+     boton1 = document.getElementById("boton1");  
+}
+/** Parcial2
+ * Funcion que calcula la mediana de acuerdo al renglon que ingreso el usuario
+ */
+function filtroMediana(){
+    var fila = Number(num1.value);
+    if(!validarMediana(fila)){
+        return false;
+    }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    var tam = fila+1;
+    var arreglo=Array();
+    //primero se debe crear el renglon del triangulo de pascal
+    for(var i=0; i<tam;i++){
+        arreglo[i] = Math.round(factorial(fila)/(factorial(i)*factorial(fila-i)));
+    }
+    console.log(arreglo);
+    //creamos la matriz filtro
+    var filtro = Array();
+    for(var j=0;j<tam;j++){
+        for(var i=0; i<tam;i++){
+            filtro[j*tam + i] = arreglo[j] * arreglo[i];
+        }
+    }
+    convolucion(filtro,tam,false,0,255,false);
 }
 /** 
  * Funcion que ocupa la convolucion para detectar los bordes */
 function filtroBordes(tipo){
     limpiarResultado();
     var tam = 3;
+    var esGris = true;
     if(tipo == 1){
         var filtro = [-1,0,1,
                       -1,0,1,
@@ -1007,19 +1065,21 @@ function filtroBordes(tipo){
         var filtro = [-1,-1,-1,
                       -1,9,-1,
                       -1,-1,-1];
+        esGris= false;
     } else if(tipo == 7){   //pasa bajas
         var filtro = [1,4,1,
                       4,12,4,
                       1,4,1];
+        esGris= false;
     }
-    convolucion(filtro,tam,true,0,255);
+    convolucion(filtro,tam,esGris,0,255,false);
 }
 /*2 parcial
     Funciones para el filtro de una matriz 3x3
 */ 
-function convolucionNxN(){
+function convolucionNxN(aumentarImagen){
     limpiarResultado();
-    notas.innerHTML = "Ingresar la matriz en el area de texto, las columna separados por un espacio y las filas por un salto de line (enter).\</br>"+
+    notas.innerHTML = "Ingresar la matriz en el area de texto, las columna separados por un espacio y las filas por un salto de linea (enter).\</br>"+
                         "Tambien indicar el limite inferior y superir, los limites indican a partir de que intensidad se debe asignar 0 o 255 respectivamente";
     texto = document.createElement('p'); 
     texto.textContent = "Matriz filtro:";
@@ -1060,24 +1120,20 @@ function convolucionNxN(){
     nuevoNumero.value = 255;
     configuracion.appendChild(nuevoNumero); 
     num2 = document.getElementById("num2");
-     /* Crear el boton para que indique cuando quiere desenfocar */
+     /* Crear el boton  */
      nuevoBoton = document.createElement('button'); 
      nuevoBoton.type = 'button'; 
      nuevoBoton.id = "boton1";
      nuevoBoton.className = "tam";
      nuevoBoton.innerText = 'Trazar'; 
-     nuevoBoton.onclick = function(){trazar()}; 
+     nuevoBoton.onclick = function(){trazar(aumentarImagen)}; 
      configuracion.appendChild(nuevoBoton);   
      boton1 = document.getElementById("boton1");  
 }
 /*2 parcial
-El numero que se lee de num2 significa
-    0: bordes horizontales 
-    1: bordes vericales 
-    2: bordes diagonales 
-    4: bordes totales
+se llama desde la funcion convolucion n*n al momento de ya haber asignado los datos necesarios
 */
-function trazar(){
+function trazar(aumentarImagen){
     var tam;
     var filtro = [];
     if(!validarTrazar(numeroMatriz.value,filtro) || !validarZona(Number(num1.value),Number(num2.value))){
@@ -1091,7 +1147,7 @@ function trazar(){
     /*for(var i=0; i<9; i++){
         filtro[i] = Number(numeroMatriz[i].value);
     }*/
-    convolucion(filtro,tam,true,Number(num1.value),Number(num2.value));
+    convolucion(filtro,tam,true,Number(num1.value),Number(num2.value),aumentarImagen);
     
 }
 /* recibe la matriz filtro y realiza la convolucion
@@ -1100,14 +1156,39 @@ function trazar(){
     si es menor a inf se vuelve 0
     si esmayor a sup se vuelve 255
 */
-function convolucion(filtro, tam, escalaGris,inf,sup){
-    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+function convolucion(filtro, tam, escalaGris,inf,sup,aumentarImagen){
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height);
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
+    console.log(aumentarImagen);
+    if(aumentarImagen){ // si se debe aumentar la imagen entonces a la imagen original (image3) se le agregan las columnas y filas de acuerdo al tamaño del filtro
+        //crear la imagen mas grande
+        image5 = context1.createImageData(image3.width+(tam-1)*2, image3.height+(tam-1)*2);
+        imagenNegro(image5);
+        var pixelesAumentar = image5.data;
+        var b= tam-1; //fila de la imagen
+        var a=0;
+        for(var i=0; i<numPixeles; i++,a++){
+            pixelesAumentar[b*image5.width*4 + (a+(tam-1))*4] = pixeles[i*4];
+            pixelesAumentar[b*image5.width*4 + (a+(tam-1))*4 +1] = pixeles[i*4+1];
+            pixelesAumentar[b*image5.width*4 + (a+(tam-1))*4 +2] = pixeles[i*4+2];
+            if(i>0 && i%(image3.width)==0){
+                b++;
+                a=0;
+            }
+        }
+        image3 = image5;
+        pixeles = image3.data;
+        numPixeles = image3.width * image3.height;
+    }
+    
     if(escalaGris){
         gris();
     }
-    image4 = context1.getImageData(0,0, canvas1.width,canvas1.height);
+    
+    image4 = context1.createImageData(image3.width, image3.height);
+    
+    imagenNegro(image4);
     var pixelesRes = image4.data;
     var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
     var sum = sumaMatriz(filtro);
@@ -1116,7 +1197,7 @@ function convolucion(filtro, tam, escalaGris,inf,sup){
     //console.log(sum);
     //console.log(i!=image3.width-(tam -1));
     //console.log(j!=image3.height-(tam-1));
-    var ban=0
+    //var ban=0
     for( var j = 0 ; j< image3.height; j++){
             for (var i = 0 ; i < image3.width; i++){ 
                 if((i<image3.width-(tam -1)) || (j<image3.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
@@ -1144,10 +1225,6 @@ function convolucion(filtro, tam, escalaGris,inf,sup){
                     //console.log("pixel " + pixeles[pixelCambio] )
                     pixelesRes[pixelCambio +1] = (intensidadG/sum) <= inf ? 0 : ((intensidadG/sum) >= sup ? 255:(intensidadG/sum) ) ;
                     pixelesRes[pixelCambio+2] = (intensidadB/sum) <= inf ? 0 : ((intensidadB/sum) >= sup ? 255:(intensidadB/sum) ) ;
-                }else{
-                    pixeles[j*image4.width*4 + i*4] = 0;
-                    pixeles[j*image4.width*4 + i*4 +1] = 0;
-                    pixeles[j*image4.width*4 + i*4 +2] = 0;
                 }
             } 
         }
@@ -1162,7 +1239,7 @@ function traslacionConfig(){
     limpiarResultado();
     notas.innerHTML = "En la pantalla se muestran dos recuadros donde deberá ingresar la cantidad de unidades que se desea desplazar.\<br/>"+
                         "El primer recuadro es para desplazarse de forma horizontal y el segundo de forma vertical.\<br/>"+
-                        "Para desplazarse a la izquierda o la derecha se deben ingresar numeros negativos.";
+                        "Para desplazarse a la izquierda o hacia arriba se deben ingresar numeros negativos.";
     /* Crear los inputs para leer los datos que delimitan la intensidad */
     nuevoNumero = document.createElement('input');
     nuevoNumero.type = 'number'; 
@@ -1219,6 +1296,55 @@ function trasladar(){
 
     canvas3.width = image3.width;
     canvas3.height = image3.height;
+    context3.putImageData(image4,0,0);
+}
+/** Parcial 2
+ * Funcion que aumenta el tamaño de una imagen
+ * valor: aumento de la imagen : 2,4,8
+ */
+function escalar(valor) {
+    limpiarResultado();
+    canvas1.className = "zonaSeleccion";
+    canvas3.className ="zonaSeleccion"; 
+    if(valor == 2){
+        canvas3.style.setProperty("--ancho", '800px');
+        canvas3.style.setProperty("--alto", '600px');
+        canvas3.style.setProperty("--margen-izquierdo", '50px');
+    }else if(valor == 4){
+        canvas3.style.setProperty("--ancho", '1100px');
+        canvas3.style.setProperty("--alto", '800px');
+        canvas3.style.setProperty("--margen-izquierdo", '60px');
+    }else if(valor == 8){
+        canvas3.style.setProperty("--ancho", '1400px');
+        canvas3.style.setProperty("--alto", '1200 px');
+        canvas3.style.setProperty("--margen-izquierdo", '300px');
+    }
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
+    pixeles = image3.data;
+    numPixeles = image3.width * image3.height;
+    // se crea la imagen aumentando su tamaño
+    image4 = context1.createImageData(image3.width*valor, image3.height*valor);
+    imagenNegro(image4);
+    var ancho = image4.width*4;
+    var pixelesRes = image4.data;
+    var saltaColumnas= 0; // indica cuantos pixeles se tiene que saltar en cuanto a columnas
+    var saltaFilas =0;
+    for( var j = 0 ; j< image3.height; j++){
+        saltaFilas = (valor-1)*j * ancho;
+        for (var i = 0 ; i < image3.width; i++){   
+            saltaColumnas = (valor-1)*i;
+            for(var l=0; l<valor;l++){ 
+                for(var m=0; m<valor; m++){
+                    var nuevaIntensidad = interpolacionBilineal({x:i,y:j},{x:i+1,y:j},{x:i,y:j+1},{x:i+1,y:j+1},i+1/(m+1),j+1/(l+1),image3);
+                    pixelesRes[l*ancho + (m*4) + (j*ancho + i*4) +saltaFilas + (saltaColumnas*4)] = /*pixeles[j*image3.width*4 + i*4];*/nuevaIntensidad.R;
+                    pixelesRes[l*ancho + (m*4) + (j*ancho+ i*4) +saltaFilas + (saltaColumnas*4) +1] = /*pixeles[j*image3.width*4 + i*4 +1];*/nuevaIntensidad.G;
+                    pixelesRes[l*ancho + (m*4) + (j*ancho+ i*4)+ saltaFilas + (saltaColumnas*4) +2] = /*pixeles[j*image3.width*4 + i*4 +2];*/nuevaIntensidad.B;
+                }
+            } 
+        }
+    }
+    canvas3.width = image4.width;
+    canvas3.height = image4.height;
     context3.putImageData(image4,0,0);
 }
 /** Parcial2
@@ -1284,6 +1410,17 @@ slider.oninput = function() {
             //corregir los indices
             var xprima = refx + nuevax * coseno(grados) + nuevay * seno(grados);
             var yprima = refy +  nuevax * -seno(grados) + nuevay * coseno(grados);
+            var tempxprima = xprima;
+            var tempyprima = yprima;
+            xprima = Math.floor(xprima);
+            yprima = Math.floor(yprima);
+            if(xprima>=0 && xprima<nDC && yprima>=0 && yprima<nDF){             
+                pixelesRes[yprima*image4.width*4 + xprima*4] = pixeles[j*image3.width*4 + i*4] //nuevaIntensidad.R;
+                pixelesRes[yprima*image4.width*4 + xprima*4 +1] = pixeles[j*image3.width*4 + i*4 +1] //nuevaIntensidad.G;
+                pixelesRes[yprima*image4.width*4 + xprima*4 +2] = pixeles[j*image3.width*4 + i*4 +2] //nuevaIntensidad.B;
+            }
+            xprima = tempxprima;
+            yprima = tempyprima;
             //interpolar para enconcontrar los indices y evitar tantos pixeles sin asignar
             var punto11 = {x:Math.floor(xprima), y:Math.floor(yprima)};
             var punto12 = {x:Math.floor(xprima), y:Math.ceil(yprima)};
@@ -1387,6 +1524,7 @@ function limpiarResultado(){
     context5.clearRect(0, 0, canvas5.width, canvas5.height);
     context6.clearRect(0, 0, canvas6.width, canvas6.height);
     banSeleccionZona = 0;
+    canvas1.className = "responsive";
     canvas3.className = "responsive";
     canvas4.className = "responsive";
 }
@@ -1509,6 +1647,7 @@ function interpolacionY(punto1,punto2,y){
 }
 /** Funcion que retorna el nuevo nivel de intensidad dado los cuatro puntos vecinos al punto obtenido x,y */
 function interpolacionBilineal(punto1,punto2,punto3,punto4,x,y,image){
+
     var imageData = image.data;
     var fraccionX = x - punto1.x;
     var fraccionY = y - punto1.y;
@@ -1516,18 +1655,26 @@ function interpolacionBilineal(punto1,punto2,punto3,punto4,x,y,image){
     var unoMenosfraccionY = 1 - fraccionY;
 
     //obtenemos las intencidades de R1
-    var rp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4]);
-    var gp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +1] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +1]);
-    var bp1 = Math.round(unoMenosfraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +2] + fraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +2]);
+    var rp1 = Math.round(fraccionX * imageData[punto1.y*image.width*4 + punto1.x *4] + unoMenosfraccionX * imageData[punto2.y*image.width*4 + punto2.x*4]);
+    var gp1 = Math.round(fraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +1] + unoMenosfraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +1]);
+    var bp1 = Math.round(fraccionX * imageData[punto1.y*image.width*4 + punto1.x *4 +2] + unoMenosfraccionX * imageData[punto2.y*image.width*4 + punto2.x*4 +2]);
     //obtenemos las intencidades de R2
-    var rp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4]);
-    var gp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +1] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +1]);
-    var bp2 = Math.round(unoMenosfraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +2] + fraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +2]);
+    var rp2 = Math.round(fraccionX * imageData[punto3.y*image.width*4 + punto3.x *4] + unoMenosfraccionX * imageData[punto4.y*image.width*4 + punto4.x*4]);
+    var gp2 = Math.round(fraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +1] + unoMenosfraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +1]);
+    var bp2 = Math.round(fraccionX * imageData[punto3.y*image.width*4 + punto3.x *4 +2] + unoMenosfraccionX * imageData[punto4.y*image.width*4 + punto4.x*4 +2]);
     //obtenemos las intencidades del punto que queremos encontrar
-    var rp3 = Math.round(unoMenosfraccionY * rp1 + fraccionY * rp2);
-    var gp3 = Math.round(unoMenosfraccionY * gp1 + fraccionY * gp2);
-    var bp3 = Math.round(unoMenosfraccionY * bp1 + fraccionY * bp2);
+    var rp3 = Math.round(fraccionY * rp1 + unoMenosfraccionY * rp2);
+    var gp3 = Math.round(fraccionY * gp1 + unoMenosfraccionY * gp2);
+    var bp3 = Math.round(fraccionY * bp1 + unoMenosfraccionY * bp2);
     return {R:rp3, G:gp3, B:bp3};
+}
+/**Factorial de un numero */
+function factorial (num){
+	var total = 1; 
+	for (i=1; i<=num; i++) {
+		total = total * i; 
+	}
+	return total; 
 }
 /** Funcion para crear una matriz de inputs 
  * Serviran para obtener los datos de la matriz filtro
@@ -1605,6 +1752,20 @@ function validarDesenfocar(num){
     texto.id = "textoE";
     if(num%2 == 0 || num< 0){
         texto.textContent ="El numero debe ser un positivo impar"; // mostrar el mensaje de error
+        configuracion.appendChild(texto);
+        return false;
+    }
+    return true;
+}
+
+function validarMediana(num){
+    if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    texto= document.createElement("p");
+    texto.id = "textoE";
+    if(num%2 != 0 || num< 0){
+        texto.textContent ="El numero debe ser un positivo par"; // mostrar el mensaje de error
         configuracion.appendChild(texto);
         return false;
     }
