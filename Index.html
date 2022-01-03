@@ -143,14 +143,22 @@
                 <li><a href="#" onclick="filtroBordes(5);return false;">Matriz gausseana</a></li>
               </ul>            
             </li>
-            <li><a href="#" onclick="filtroBordes(6);return false;">Pasa baja</a></li>
-            <li> <a href="#" onclick="filtroBordes(7);return false;">Pasa alta</a></li>
+            <li><a href="#" onclick="filtroBordes(7);return false;">Pasa baja</a></li>
+            <li> <a href="#" onclick="filtroBordes(6);return false;">Pasa alta</a></li>
           </ul>
         </li>
         <li><a href="#"> Convolución manual</a>
           <ul> 
             <li><a href="#" onclick="convolucionNxN(false);return false;">Convolución NxN</a></li>
             <li><a href="#" onclick="convolucionNxN(true);return false;">Convolución NxN aumentando imagen</a></li>
+          </ul>
+        </li>
+        <!-- Menus del tercer parcial-->
+        <li><a href="#"> Segmentación</a>
+          <ul> 
+            <li><a href="#" onclick="segmentacionConfig(1);return false;">Cubica</a></li>
+            <li><a href="#" onclick="segmentacionConfig(2);return false;">Ditancia cuadratica</a></li>
+            <li><a href="#" onclick="return false;">Mahalanobis</a></li>
           </ul>
         </li>
 			</ul>
@@ -175,10 +183,12 @@
       <canvas id ="canvas5"   class="responsive"  ></canvas>
       <canvas id ="canvas6" class="responsive"  ></canvas>
     </div>
+    <!-- barra para rotacion-->
     <div class="slidecontainer" id ="slidecontainer">
         <input type="range" min="0" max="360" value="0" class="slider" id="myRange">
         <p style="font-size:18px">Grados: <span class="tam" id="grados"></span></p>
-      </div>
+    </div>
     <script type="text/javascript" src="PDI.js"></script>
+    <script type="text/javascript" src="tercerParcial.js"></script>
   </body>
 </html>
