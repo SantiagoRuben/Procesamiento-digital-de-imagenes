@@ -12,7 +12,6 @@ body
 @media screen and ( min-width:1025px ) and ( max-width: 1280px ) { 
     canvas.responsive { 
         width: 450px;
-        
     } 
 } 
 @media screen and ( min-width: 1281px ) and ( max-width: 1366px ){ 
@@ -25,12 +24,16 @@ body
         width: 650px; 
     } 
 } 
+canvas.responsive { 
+  max-width: 100%; 
+  height: auto;
+}
 /*Tamaño de algunos elementos de configuracion para los efectos*/
 .tam{
     height: 20px;
     width: 80px;
 }
-/* estilos para la matriz de convoluciones*/
+/* estilos para la matriz de convoluciones
 .matriz {
     display: inline-flex;
     flex-direction: column;
@@ -44,16 +47,17 @@ body
 .cuadro{
 	border: 2.5px solid;
 	background-color: white;
-	width:60px;/*cambiar a 50*/
-    height:60px;/*cambiar a 50*/
+	width:60px;
+    height:60px;
     text-align: center;
 }
-/* Termina estilos matriz*/
+ Termina estilos matriz*/
 .nota{
     margin-top: 20px;
     font-size: 18px;
-    color: rgb(194, 213, 248);
+    color: rgb(0, 0, 0);
     margin-left: 50px;;
+    font-weight: inherit;
 }
 :root {
   --ancho: 650px;
@@ -70,11 +74,6 @@ body
     display: flex; 
     justify-content: space-around;
 } 
-canvas.responsive { 
-    max-width: 100%; 
-    height: auto;
-}
-
 .configuracion{
     display: flex;
     margin-top: 10px;
@@ -82,13 +81,13 @@ canvas.responsive {
 }
 /* Estilos para la barra de desplazamiento*/
 .slidecontainer {
-    width: 100%;
+    width: 75%;
     display: flex;
   }
   
   .slider {
     -webkit-appearance: none;
-    width: 80%;
+    width: 75%;
     height: 10px;
     border-radius: 5px;
     background: #d3d3d3;
@@ -96,8 +95,7 @@ canvas.responsive {
     opacity: 0.7;
     -webkit-transition: .2s;
     transition: opacity .2s;
-    margin-right: 50px;
-    margin-left: 20px;
+    margin-right: 40px;
     margin-top: 20px;
   }
   
