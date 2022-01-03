@@ -135,7 +135,9 @@ function actualizarColor1(event){
     G1=16*letra(event.target.value[3])+letra(event.target.value[4]);
     B1=16*letra(event.target.value[5])+letra(event.target.value[6]);
     colorHexa = event.target.value;
-    //console.log(colorHexa);
+    if(configuracion.contains(divPixel)){
+        divPixel.style.backgroundColor = colorHexa;
+    }
 }
 function actualizarColor2(event){
     R2=16*letra(event.target.value[1])+letra(event.target.value[2]);
@@ -1357,7 +1359,7 @@ function escalar(valor) {
     /* añade el trackbar para determinar el angulo de rotacion*/
     configuracion.appendChild(sliderContainer);
     output.innerHTML = slider.value;
-     //mostrar la imagen original para
+     //mostrar la imagen original 
     image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );
     pixeles = image3.data;
     numPixeles = image3.width * image3.height;
@@ -1517,6 +1519,13 @@ function limpiarResultado(){
     if(configuracion.contains(sliderContainer)){
         configuracion.removeChild(sliderContainer);
         slider.value = 0;
+    }
+    if(configuracion.contains(divTrackbar)){
+        configuracion.removeChild(divTrackbar);
+        trackbar.value = 0;
+    }
+    if(configuracion.contains(divPixel)){
+        configuracion.removeChild(divPixel);
     }
     notas.innerHTML = "";
     context3.clearRect(0, 0, canvas3.width, canvas3.height);
