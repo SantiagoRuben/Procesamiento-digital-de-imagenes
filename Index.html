@@ -54,7 +54,7 @@
                 <li><a href="#" onclick="ecualizarColor();return false;"> A color</a></li>
               </ul>
             </li>
-            <li><a href="#" onclick="seleccionZona();return false;"> Seleccion de zona</a></li>
+            <li><a href="#" onclick="seleccionZonaConfig();return false;"> Seleccion de zona</a></li>
           </ul>
         </li>
         <li><a href="#"> Separar colores</a>
@@ -156,9 +156,19 @@
         <!-- Menus del tercer parcial-->
         <li><a href="#"> Segmentación</a>
           <ul> 
-            <li><a href="#" onclick="segmentacionConfig(1);return false;">Cubica</a></li>
-            <li><a href="#" onclick="segmentacionConfig(2);return false;">Ditancia cuadratica</a></li>
-            <li><a href="#" onclick="return false;">Mahalanobis</a></li>
+            <li><a href="#">Euclidiana</a>
+              <ul>
+                <li><a href="#" onclick="segmentacionConfig(1,1);return false;">Imagen</a></li>
+                <li><a href="#" onclick="segmentacionConfig(1,2);return false;">Tiempo Real</a></li>
+              </ul> 
+            </li>  
+            <li><a href="#">Distancia cuadratica</a>
+              <ul>
+                <li><a href="#" onclick="segmentacionConfig(2,1);return false;">Imagen</a></li>
+                <li><a href="#" onclick="segmentacionConfig(2,2);return false;">Tiempo Real</a></li>
+              </ul> 
+            </li> 
+            <li><a href="#" onclick="segmentacionConfig(3,1);return false;">Mahalanobis</a></li>
           </ul>
         </li>
 			</ul>
@@ -183,6 +193,7 @@
       <canvas id ="canvas5"   class="responsive"  ></canvas>
       <canvas id ="canvas6" class="responsive"  ></canvas>
     </div>
+
     <!-- barra para rotacion-->
     <div class="slidecontainer" id ="slidecontainer">
         <input type="range" min="0" max="360" value="0" class="slider" id="myRange">
