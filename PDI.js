@@ -36,6 +36,7 @@ var num2;
 //var numeroMatriz = [];
 var numeroMatriz;
 var banSeleccionZona = 0 ; // indica si se va a empezar a realizar la funcion seleccionZona
+var tipoSeleccion; // sirve para identificar si es seleccion de zona(1) o segmentacion(2)
 //posicion del mouse
 var posicionX;
 var posicionY;
@@ -359,7 +360,7 @@ function ecualizarColor(){
         x+=2;
     } 
 }/* Selecciona una zona con el mouse y se debe mostrar esa zona a color todo lo demas en escala de girses */
-function seleccionZona(){
+function seleccionZonaConfig(){
     //escalaGris(true);
     limpiarResultado(); //
     notas.innerHTML = "La seleccion de la zona debe de realizarse sobre la imagen de abajo, el resultado se mostrara a la derecha.\<br>" +
@@ -370,6 +371,7 @@ function seleccionZona(){
     canvas3.width = image3.width; //
     context3.putImageData(image3,0,0);//
     banSeleccionZona = 1;
+    tipoSeleccion = 1;
     //se cambia la clase para tener mayor control al momento de normalizar la posicion del mouse
     canvas3.className = "zonaSeleccion";
     canvas3.style.setProperty("--ancho", '650px');
@@ -377,21 +379,31 @@ function seleccionZona(){
     canvas3.style.setProperty("--margen-izquierdo", '10px');
     canvas4.className = "zonaSeleccion";
 }
+//funcion que pinta la zona seleccionada
+function pintarZonaSeleccionada(posxInicial,posyInicial,posxFinal,posyFinal,pixelesC){
+    gris();//
+    for( var j = Math.ceil(posyInicial) ; j< Math.ceil(posyFinal); j++){
+        for (var i = Math.ceil(posxInicial) ; i < Math.ceil(posxFinal); i++){ 
+            pixeles[j*image4.width*4 + i*4] = pixelesC[j*image4.width*4 + i*4];
+            pixeles[j*image4.width*4 + i*4+1] = pixelesC[j*image4.width*4 + i*4+1];
+            pixeles[j*image4.width*4 + i*4+2] = pixelesC[j*image4.width*4 + i*4+2];
+        } 
+    }
+}
 //funcion que se ejecuta con el clic del mouse
 function clic(event){
-    const rect = canvas3.getBoundingClientRect();
     if(banSeleccionZona == 1){
+        const rect = canvas3.getBoundingClientRect();
         click=!click;
         if(click){
             posicionX = event.clientX - Math.abs(rect.left);
             posicionY = event.clientY - rect.top;
-           // console.log(rect.left);
+            // console.log(rect.left);
             //console.log(rect.top);
-           // console.log(event.clientX );
-           // console.log(event.clientY);
-           // console.log(posicionX);
-            //console.log( posicionY);
-            
+            // console.log(event.clientX );
+            // console.log(event.clientY);
+            // console.log(posicionX);
+            //console.log( posicionY);       
         }else{// se colorea la imagen
             var xTemp = posicionX;
             var yTemp = posicionY;
@@ -415,18 +427,15 @@ function clic(event){
             var posyInicial = (posicionY*image3.height)   / 350.0;
             var posxFinal = ((x)*image3.width) / 650.0;
             var posyFinal = ((y) * image3.height) / 350.0;
-            gris();//
-            for( var j = Math.ceil(posyInicial) ; j< Math.ceil(posyFinal); j++){
-                for (var i = Math.ceil(posxInicial) ; i < Math.ceil(posxFinal); i++){ 
-                    pixeles[j*image4.width*4 + i*4] = pixelesC[j*image4.width*4 + i*4];
-                    pixeles[j*image4.width*4 + i*4+1] = pixelesC[j*image4.width*4 + i*4+1];
-                    pixeles[j*image4.width*4 + i*4+2] = pixelesC[j*image4.width*4 + i*4+2];
-                } 
-            }
-            
-            canvas4.width = image4.width;
-            canvas4.height = image4.height;
-            context4.putImageData(image4,0,0);
+            if(tipoSeleccion ==1){// codigo hecho del primer parcial para pintar una zona a color y lo demas en blanco y negro
+                pintarZonaSeleccionada(posxInicial,posyInicial,posxFinal,posyFinal,pixelesC);
+                canvas4.width = image4.width;
+                canvas4.height = image4.height;
+                context4.putImageData(image4,0,0);
+            }else{//codigo hecho en el tercer parcial para la segmentacion de una imagen
+                //poner la funcion de segmentacion
+                //Lo que se obtiene es la matriz de covarianza inversa, el arreglo con la media de cada canal, numero total de pixeles
+            }            
         }
     }
 }
@@ -435,7 +444,14 @@ function zonaSeleccionada(event){
     if(banSeleccionZona == 1){
         if(click){
             const rect = canvas3.getBoundingClientRect();
-            context3.putImageData(image3,0,0); // para que solo muestre un rectangulo se debe poner otra vez la imagen
+            if(tipoSeleccion ==1){// dependiendo del tipo se usa la image3 o la image4
+                context3.putImageData(image3,0,0); // para que solo muestre un rectangulo se debe poner otra vez la imagen
+            }else{
+                // para esto es necesario volver a tomar la imagen ya que image4 se ocupa anteriormente
+                image4 = context1.getImageData( 0, 0, canvas3.width, canvas3.height ); 
+                context3.putImageData(image4,0,0); // para que solo muestre un rectangulo se debe poner otra vez la imagen
+            }
+            
             var x = event.clientX - Math.abs(rect.left);
             var y = event.clientY - rect.top;
             var xTemp = posicionX;
@@ -1536,6 +1552,12 @@ function limpiarResultado(){
     canvas1.className = "responsive";
     canvas3.className = "responsive";
     canvas4.className = "responsive";
+    clearInterval(capturarIamgen); //// se limpia el intervalo para que se deje de ejecutar la funcion 
+    if (typeof stream !== 'undefined') { 
+        stream.getTracks()[0].stop();
+        console.log("desactivar camara");
+    }
+
 }
 function gris(){
     for (var i = 0; i < numPixeles*4; i+=4){ 
