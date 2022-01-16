@@ -18,8 +18,12 @@ var capturarIamgen; ////variable para limpiar el intervalo de ejecucion (pausar 
 var stream;
 //terminan las variables de la camara
 
+//variables para operadores moroflogicos
+var aplicacionesFiltro; //cuenta las vecesd que se aplico el filtro
+//terminan variables para operadores moroflogicos
+
 /*funcion para la configuracion de la  segmentacion
-*tipo =formula utilizada para la segmentacion  (1:euclidiana,2:cuadraticaa,3:mahalanobis)
+*tipo =formula utilizada para la segmentacion  (1:euclidiana,2:cuadratica,3:mahalanobis)
 * tiempo = Si es en tiempo real o una imagen estatica (1:imagen estatica, 2:imagen en tiempo real)
 *numBarras = numero de barras extras para los colores RGB*/
 function segmentacionConfig(tipo,tiempo,numBarras){
@@ -126,6 +130,8 @@ function segmentacionConfig(tipo,tiempo,numBarras){
         video.autoplay = true;    
         //configuracion.appendChild(video);
         capturarIamgen = setInterval(function() {mostrarCamara(tipo)},2,numBarras);
+    }else{
+        segmentacion(tipo,tiempo,numBarras)
     }
 }
 
@@ -218,6 +224,234 @@ function mostrarCamara(tipo){
     canvas3.height = 350;
     context3.drawImage(video, 0, 0, 650, 350);
     segmentacion(tipo,2);
+}
+
+/** Funcion para la configuracion de los operadores dilatacion, erosion y perimetro
+ * tipo operador = 1:dilatacion, 2:erosion, 3:periometro
+ * tipo patron= 1:matriz completa, 2:matres seccionada
+*/
+function operadoresMorfologicosConfig(tipoOperador,tipoPatron){
+    limpiarResultado();  
+    var operador = tipoOperador ==1? "Dilatacion":(tipoOperador==2? "Erosion":"Perimetro")
+    texto = document.createElement('p'); 
+    texto.textContent = operador + " (# impares)";
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoNumero = document.createElement('input'); 
+    nuevoNumero.type = 'number'; 
+    nuevoNumero.id = "num1";
+    nuevoNumero.className = "tam";
+    nuevoNumero.placeholder = 1;
+    configuracion.appendChild(nuevoNumero); 
+    num1 = document.getElementById("num1");
+     /* Crear el boton */
+     nuevoBoton = document.createElement('button'); 
+     nuevoBoton.type = 'button'; 
+     nuevoBoton.id = "boton1";
+     nuevoBoton.className = "tam";
+     nuevoBoton.innerText = 'Aplicar'; 
+     if(tipoOperador!=3){
+         var texto = tipoOperador==1 ? "grande":"pequeña";
+        notas.innerHTML = "Antes de dar clic en aplicar, es necesario que ingrese el tamaño de la matriz en el recuadro, el numero debera ser impar.\<br/>"+
+        "Mientras mayor sea el numero, más "+ texto + " se hara la figura.\<br/>"+
+        "Este efecto puede tardar mas que otros.";
+     }else{
+        notas.innerHTML = "Antes de dar clic en aplicar, es necesario que ingrese el tamaño de la matriz en el recuadro, el numero debera ser impar.\<br/>"+
+        "Mientras mayor sea el numero, se notara más el perimetro.\<br/>"+
+        "Este efecto puede tardar mas que otros.";
+    }    
+     nuevoBoton.onclick = function(){crearPatron(tipoOperador,tipoPatron)};  
+     configuracion.appendChild(nuevoBoton);   
+     boton1 = document.getElementById("boton1");  
+}
+
+/** Funcion que realiza la operacion de dilatacion 
+ * tam = tamaño del patron
+ * patron = patron para verificar la imagen
+ * pixelesOriginales = pixeles de la imagen original
+ * pixelesRes = pixeles de la imagen resultado
+ * fila = indice de las filas
+ * columna= indice de las columnas
+*/
+function dilatacion(tam,patron,imagenOriginal,pixelesOriginales,pixelesRes,fila,columna){
+    var ban= false; // se ocupa la bandara para saber si por lo menos hay un color blanco en la region que se esta revisando 
+    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
+    for(var j=0; j<tam; j++){
+        for(var i=0; i<tam; i++){
+            // se revisa si el pixel esta activado (su intensida es 255)
+            if(patron[j][i] == 1 && pixelesOriginales[((j*imagenOriginal.width*4)+(fila*imagenOriginal.width*4)) + ((i*4) + (columna*4))] == 255){            
+                ban=true;
+            }
+            if(j==Math.floor(tam/2) && i==Math.floor(tam/2)){
+                pixelCambio = (j*imagenOriginal.width*4)+(fila*imagenOriginal.width*4) + (i*4) + (columna*4);
+            }
+        }
+    }
+    if(ban== true){ // si hay por lo menos un pixel activado como vecino se debe pintar el centro
+        pixelesRes[pixelCambio] = 255;
+        pixelesRes[pixelCambio +1] = 255;
+        pixelesRes[pixelCambio+2] = 255;
+    }
+}
+/** Funcion que realiza la operacion de erosion 
+ * tam = tamaño del patron
+ * patron = patron para verificar la imagen
+ * pixelesOriginales = pixeles de la imagen original
+ * pixelesRes = pixeles de la imagen resultado
+ * fila = indice de las filas
+ * columna= indice de las columnas
+*/
+function erosion(tam,patron,imagenOriginal,pixelesOriginales,pixelesRes,fila,columna){
+    var ban= true; // se ocupa la bandara para saber si todos los pixeles a su alrededor son 1
+    var pixelCambio; // pixel al que se debe poner el resultado de la operacion (pixel medio de la matriz) 
+    for(var j=0; j<tam; j++){
+        for(var i=0; i<tam; i++){
+            // se revisa si el pixel esta desactivado (su intensida es 0)
+            if(patron[j][i] == 1 && pixelesOriginales[((j*imagenOriginal.width*4)+(fila*imagenOriginal.width*4)) + ((i*4) + (columna*4))] != 255){            
+                ban=false;
+            }
+            if(j==Math.floor(tam/2) && i==Math.floor(tam/2)){
+                pixelCambio = (j*imagenOriginal.width*4)+(fila*imagenOriginal.width*4) + (i*4) + (columna*4);
+            }
+        }
+    }
+    if(ban== true){ // si hay por lo menos un pixel activado como vecino se debe pintar el centro
+        pixelesRes[pixelCambio] = 255;
+        pixelesRes[pixelCambio +1] = 255;
+        pixelesRes[pixelCambio+2] = 255;
+    }
+}
+
+/**Funcion que muestra la confuguracion para la esqueletizacion, cerrar imagen
+ * tipoOperador = 1:esqueletizacion, 2:cerrar
+ * tipo patron= 1:matriz completa, 2:matres seccionada
+ */
+function esqueletizacionYCerrarConfig(tipoOperador,tipoPatron){
+    limpiarResultado();  
+    notas.innerHTML = "Para poder realizar este efecto es necesari dar clic en el boton que se muestra las veces que se requiera para que.\<br/>"+
+    "la imagen resultado solo muestre el esqueleto de la figura.\<br/>"+
+    "Este efecto puede tardar mas que otros.";
+    aplicacionesFiltro =0;
+    texto = document.createElement('p'); 
+    texto.innerHTML = "Numero de veces que se aplico el filtro: " + aplicacionesFiltro;
+    texto.id = "texto";
+    configuracion.appendChild(texto);
+    nuevoBoton = document.createElement('button'); 
+    nuevoBoton.type = 'button'; 
+    nuevoBoton.id = "boton1";
+    nuevoBoton.className = "tam";
+    nuevoBoton.innerText = 'Aplicar'; 
+    nuevoBoton.onclick = function(){esqueletizacionCerrar(tipoOperador,tipoPatron)}; 
+    
+    configuracion.appendChild(nuevoBoton);   
+    boton1 = document.getElementById("boton1");  
+}
+
+/** Funcion que aplica la esqueletizacion o cerrar la iamgen, solo matriz 3x3
+ * tipoOperador = 1:esqueletizacion, 2:cerrar
+ * tipo patron= 1:matriz completa, 2:matres seccionada
+*/
+function esqueletizacionCerrar(tipoOperador,tipoPatron){
+    var patron;
+    aplicacionesFiltro++;
+    texto.innerHTML = "Numero de veces que se aplico el filtro: " + aplicacionesFiltro;
+    if(tipoPatron ==1 ){
+        patron = [
+            [1,1,1],
+            [1,1,1],
+            [1,1,1]
+        ]
+    }else{
+        patron = [
+            [0,1,0],
+            [1,1,1],
+            [0,1,0]
+        ]
+    }
+    if(aplicacionesFiltro == 1){
+        image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height);
+    }else{
+        image3 = context3.getImageData( 0, 0, canvas3.width, canvas3.height);
+    }
+
+    if(tipoOperador == 1){
+        var imageResult = operadoresMorfologicos(3,patron,2,image3); 
+    }else{
+        var imageDilatacion = operadoresMorfologicos(3,patron,1,image3); 
+        var imageResult = operadoresMorfologicos(3,patron,2,imageDilatacion); 
+    }
+    mostrarImagen(canvas3,context3,imageResult);
+
+}
+/** Funcion para generar el patron que se ocupara para aplicar los operadores morfologicos 
+ * TipoPatron = tipo del patron, 1= matriz completa, 2= No se revisan las diagonales
+ * tipoOperador = 1:dilatacion, 2:erosion
+*/
+function crearPatron(tipoOperador,tipoPatron){
+    if(!validarDesenfocar(Number(num1.value))){// valida que el numero no sea nmulo y sea impar positivo
+        return false;
+    }else if(document.body.contains(document.getElementById("textoE"))){ //eliminar el mensaje de error en caso de ser necesario
+        configuracion.removeChild(document.getElementById("textoE"));
+    }
+    var tam = Number(num1.value);
+    // crear el patron a utilizar
+    var patron = Array(tam);
+    var renglon;
+    for(var j = 0; j<tam;j++){
+        renglon = Array(tam);
+        for(var i=0; i<tam; i++){
+           //Poner un 1 si el patron esta debe ser la matriz completa o "i" o "j" es igual a la mitad del tamaño del patron
+           if(tipoPatron ==1 || j == Math.floor(tam/2) || i== Math.floor(tam/2) ){
+               renglon[ i] = 1; 
+           }else{
+                renglon[+ i] = 0; 
+           }
+        }
+       patron[j] = renglon;
+    }   
+    //console.log(patron);
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height);
+    var imageResult = operadoresMorfologicos(tam,patron,tipoOperador,image3); 
+
+    if(tipoOperador == 3){
+        var pixeles1= image3.data;
+        numPixeles = image3.width * image3.height;
+        var pixeles2 = imageResult.data;
+        var imagePerimetro = context1.createImageData(image3.width, image3.height); //imagen donde ira el resultado del perimetro
+        imagenNegro(imagePerimetro);
+        operacion(pixeles1,pixeles2,numPixeles,imagePerimetro.data,2);
+        mostrarImagen(canvas3,context3,imagePerimetro);
+    }else{
+        mostrarImagen(canvas3,context3,imageResult);
+    }
+   
+}
+
+
+/** Funcion que raliza las operadores morfologicos
+ * tam = tamaño del patron
+ * patron = patron para verificar la imagen
+ * imagenOriginal = imagen sobre la cual se va a trabajar
+ */
+function operadoresMorfologicos(tam,patron,tipoOperador,imagenOriginal){
+    
+    pixeles = imagenOriginal.data;
+    numPixeles = imagenOriginal.width * imagenOriginal.height;
+    image4 = context1.createImageData(imagenOriginal.width, imagenOriginal.height); //imagen donde ira el resultado
+    imagenNegro(image4);
+    var pixelesRes = image4.data;
+    for( var j = 0 ; j< imagenOriginal.height; j++){
+        for (var i = 0 ; i < imagenOriginal.width; i++){ 
+            if((i<imagenOriginal.width-(tam -1)) || (j<imagenOriginal.height-(tam-1)) ){ // no se desborde tanto a lo alto como a lo ancho
+                if(tipoOperador==1){ // si el operador es 1 significa que se debe aplicar la dilatacion
+                    dilatacion(tam,patron,imagenOriginal,pixeles,pixelesRes,j,i);
+                }else{ /// se debe hacer la erosion
+                    erosion(tam,patron,imagenOriginal,pixeles,pixelesRes,j,i);
+                }
+            }
+        } 
+    }
+    return image4;
 }
 
 //Funciones extras
