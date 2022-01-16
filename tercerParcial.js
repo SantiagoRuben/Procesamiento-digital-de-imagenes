@@ -20,6 +20,7 @@ var stream;
 
 //variables para operadores moroflogicos
 var aplicacionesFiltro; //cuenta las vecesd que se aplico el filtro
+var banSeleccionPixel = 0; // indica si se debe de escoger el pixel desde donde se debe comenzar a rellenar
 //terminan variables para operadores moroflogicos
 
 /*funcion para la configuracion de la  segmentacion
@@ -454,6 +455,72 @@ function operadoresMorfologicos(tam,patron,tipoOperador,imagenOriginal){
     return image4;
 }
 
+/**Funcion que despliega la configuracion del relleno */
+function rellenoConfig(){
+    notas.innerHTML = "Seleccionar un punto de la segunda imagen sobre la que se quiera rellenar,el resultado se mostrara a la derecha.\<br>"+
+    "Si no se ve la segunda iomagen porfavor desplácese hacia abajo";
+    image3 = context1.getImageData( 0, 0, canvas1.width, canvas1.height );//
+    canvas3.height = image3.height;
+    canvas3.width = image3.width; 
+    context3.putImageData(image3,0,0);
+    banSeleccionPixel = 1;
+
+    //se cambia la clase para tener mayor control al momento de normalizar la posicion del mouse
+    canvas3.className = "zonaSeleccion";
+    canvas3.style.setProperty("--ancho", '650px');
+    canvas3.style.setProperty("--alto", '350px');
+    canvas3.style.setProperty("--margen-izquierdo", '10px');
+    canvas4.className = "zonaSeleccion";
+}
+/** Funcion que detecta el clic para rellenar la figura 
+ * event = el evento que recibio 
+*/
+function rellenar(event){
+    if(banSeleccionPixel == 1){
+        const rect = canvas3.getBoundingClientRect();
+        posicionX = event.clientX - rect.left;
+        posicionY = event.clientY - rect.top;
+        //como la imagen se hace chica tenemos que normalizar la posicion del mouse
+        var posx = Math.round((posicionX*image3.width) / 650.0);
+        var posy = Math.round((posicionY*image3.height)   / 350.0);
+
+        pixeles = image3.data;
+        //SE PROCEDE A REALIZAR EL RELLENO (se puede meter a una funcion)
+        var pila = Array(); //variable que contendra la pila de los pixeles
+        var pixelInicial = {x:posx, y:posy}; //variable inicial del relleno
+        var temp; // variable donde se guardara el pixel actual
+        pila.push(pixelInicial);
+        while(pila.length !=0){
+            console.log(pila)
+            //obtener y pintar el pixel
+            temp = pila.splice(0,1);
+            pixeles[temp[0].y*image3.width*4 + temp[0].x *4] = 255;
+            pixeles[temp[0].y*image3.width*4 + temp[0].x *4 + 1] = 255;
+            pixeles[temp[0].y*image3.width*4 + temp[0].x *4 + 2] = 255;
+            //comprobar cuales pixeles vecinos necesitan ser rellenados
+            if(pixeles[(temp[0].y-1)*image3.width*4 + temp[0].x *4] ==0 ){
+                var pixelUp = {x:temp[0].x, y:temp[0].y-1};
+                pila.push(pixelUp);
+            }
+            if(pixeles[(temp[0].y+1)*image3.width*4 + temp[0].x *4] ==0 ){
+                var pixelDown = {x:temp[0].x, y:temp[0].y+1};
+                pila.push(pixelDown);
+            }
+            if(pixeles[temp[0].y*image3.width*4 + (temp[0].x-1) *4] ==0 ){
+                var pixelLeft = {x:temp[0].x -1, y:temp[0].y};
+                pila.push(pixelLeft);
+            }
+            if(pixeles[temp[0].y*image3.width*4 + (temp[0].x+1) *4] ==0 ){
+                var pixelRight = {x:temp[0].x+1, y:temp[0].y};
+                pila.push(pixelRight);
+            }
+        }
+        //mostrar la imagen
+        canvas4.height = image3.height;
+        canvas4.width = image3.width; 
+        context4.putImageData(image3,0,0);
+    }
+}
 //Funciones extras
 /** Muestra el color en el div de acuerdo a los valores de la barra */
 function mostrarColor(R,G,B){
