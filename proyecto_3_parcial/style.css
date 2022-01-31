@@ -1,0 +1,168 @@
+/* Santiago Martinez Ruben Emmanuel*/
+body 
+{
+  background: #59C173;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #5D26C1, #a17fe0, #59C173);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #5D26C1, #a17fe0, #59C173); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+   /*background: rgb(136, 157, 247)*/
+}
+@media screen and ( max-width: 1024px ) { 
+    canvas.responsive { 
+        width: 350px; 
+    } 
+} 
+@media screen and ( min-width:1025px ) and ( max-width: 1280px ) { 
+    canvas.responsive { 
+        width: 450px;
+    } 
+} 
+@media screen and ( min-width: 1281px ) and ( max-width: 1366px ){ 
+    canvas.responsive { 
+        width: 550px; 
+    } 
+} 
+@media screen and ( min-width: 1367px ) { 
+    canvas.responsive { 
+        width: 650px; 
+    } 
+} 
+canvas.responsive { 
+  max-width: 100%; 
+  height: auto;
+}
+
+.nota{
+    margin-top: 20px;
+    font-size: 20px;
+    color: rgb(0, 0, 0);
+    margin-left: 50px;;
+    font-weight: inherit;
+}
+
+.imgResult{
+    width: 650px;
+    height: 350px;
+}
+.img-wrap{ 
+    margin-top: 40px;
+    display: flex; 
+    justify-content: space-around;
+} 
+.Configuraciones{
+  margin-left: 10px;
+  margin-top: 100px;
+  width: 70%;
+}
+
+.divFlex{
+  display: flex;
+}
+.tam, .boton{
+  height: 20px;
+  width: 80px;
+  margin-top: 15px;
+  margin-left: 50px;
+  border: 2px solid;
+  border-radius: 6px;
+}
+
+.radioButtons{
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.boton:hover {
+  background-color: #ba84cf;
+  color: white;
+}
+
+/* Estilos para la barra de desplazamiento*/
+
+  .slider {
+    -webkit-appearance: none;
+    width: 68%;
+    height: 10px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    margin-right: 10px;
+    margin-top: 20px;
+  }
+  
+  .slider:hover {
+    opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    background: url('yy.png');
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    background: url('yy.png');
+    cursor: pointer;
+  }
+/* Termina estilos barra desplazamiento*/
+
+/* Estilos para el menu*/
+#header {
+  margin:auto;
+  width: 100%;
+  font-family:Arial, Helvetica, sans-serif;
+  display: inline-block;
+}
+
+ul, ol {
+  list-style:none;
+}
+
+.nav > li {
+  float:left;
+  
+}
+
+.nav li a {
+  background-color:rgb(66, 63, 63);
+  color:#fff;
+  text-decoration:none;
+  padding:10px 12px;
+  display:block;
+  height: 25px;
+}
+
+.nav li a:hover {
+  background-color:#918f8f;
+}
+
+.nav li ul {
+  display:none;
+  position:absolute;
+  min-width:140px;
+}
+
+.nav li:hover > ul {
+  display:block;
+}
+
+.nav li ul li {
+  position:relative;
+  z-index: 1000;
+}
+
+.nav li ul li ul {
+  right:-140px;
+  top:0px;
+  
+}

@@ -1,0 +1,98 @@
+<!--Santiago Martinez Ruben Emmanuel-->
+<!DOCTYPE html>
+<html lang="es">
+  <head> 
+  <meta charset="UTF-8"> 
+  <title>PDI</title>
+  <link rel='stylesheet' href='style.css'/>
+  <link rel="shortcut icon" href="http://www.rw-designer.com/icon-view/21516.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" >
+  </head>
+  <body>
+    <!-- Menu -->
+    <div id="header">
+			<ul class="nav">
+				<li><a>
+          Cargar imagen
+          <input type="file" id="imagen1" accept=".jpg,.jpeg,.png" multiple>
+        </a> </li>
+        <li><a href="#" onclick="segmentacionConfig();return false;">Segmentacion</a></li>
+        <li><a href="#"> Operadores morfológicos</a>
+          <ul> 
+            <li><a href="#" onclick="operadoresMorfologicosConfig(1);return false;">Dilatación</a></li>
+            <li><a href="#" onclick="operadoresMorfologicosConfig(2);return false;">Erosión</a></li>
+            <li><a href="#" onclick="operadoresMorfologicosConfig(3);return false;">Perímetro</a></li>
+            <li><a href="#" onclick="rellenoConfig();return false;">Relleno</a></li>
+            <li><a href="#" onclick="operadoresMorfologicosConfig(4);return false;">Cierre</a></li>
+            <li><a href="#" onclick="operadoresMorfologicosConfig(5);return false;">Limpieza</a></li>
+            <li><a href="#" onclick="operadoresMorfologicosConfig(6);return false;">Esqueletización</a></li>
+          </ul>
+        </li>
+        <li><a href='Manual_de_usuario.pdf'> Manual </a></li>
+			</ul>
+		</div>
+    <!-- Comienza el cuerpo de la pagina-->
+    <div class="nota" id="nota">Para empezar a utiliizar los efectos es necesario cargar la imagen, una vez cargada es necesario primero dar clic en segmentacion. <br/>
+      La imagen resultante se mostrara abajo, despues podras aplicar los demas operadores, se debe tener en cuenta que se iran aplicando uno sobre de otro.<br/>
+      Si se quiere volver a empezar deberas de segmentar la imagen nuevamente. <br/>
+      Cada opcion habilitara las configuraciones necesarias, por eso es importante primero seleccionar el efecto a usar.
+    </div>
+    <div class="img-wrap" > 
+      <!--Imagenes que ingresa el usuario-->
+      <canvas id ="canvas1"   class="responsive"  ></canvas>
+      <!-- barra para rotacion-->
+      <div class="Configuraciones" id ="Configuraciones">
+        <div class="divFlex"> <!-- Barra exclusiva del umbral-->
+          <input type="range" min="0" max="150" value="10" class="slider" id="rangoUmbral">
+          <p style="font-size:18px" id="umbral">Umbral: 10</p>
+        </div>
+        <div class="divFlex">
+          <span> <!-- Se agrupan todas las barras para los colores RGB-->
+            <div class="divFlex">
+              <input type="range" min="0" max="255" value="0" class="slider" id="rangoR">
+              <p style="font-size:18px" id="R">R: 0</p>
+            </div>
+            <div class="divFlex">
+              <input type="range" min="0" max="255" value="0" class="slider" id="rangoG">
+              <p style="font-size:18px" id="G">G: 0</p>
+            </div>
+            <div class="divFlex">
+              <input type="range" min="0" max="255" value="0" class="slider" id="rangoB">
+              <p style="font-size:18px" id="B">B: 0</p>
+            </div>
+            <div class="tam" id="divPixel" style="background-color: black;"></div>
+          </span>
+          <div style="margin-left:110px"> <!-- El resto de la configuracion-->
+            <div class = "divFlex"> <!-- RADIO BUTTONS PARA ELEGIR EL PATRON-->
+                <P style="font-size:18px">Tipo de patrón: </P>
+                <div class="radioButtons">
+                  <input type="radio" name="patron" id="matriz" style="margin-left: 30px;"> Matriz  
+                  <input type="radio" name="patron" id="cruz" style="margin-left: 30px;"> Cruz
+                </div>
+            </div>
+          <div class ="divFlex">
+              <div class = "divFlex"> <!-- Input para ingresar el tamaño del patron-->
+                <P style="font-size:18px">Tamaño del patrón: </P>
+                <input type="number"  id="tamPatron" class="tam">  
+              </div>
+              <div class = "divFlex" style="margin-left: 30px;;"> <!-- Input para ingresar el numero de veces a aplicara esqueletizacion y cierre-->
+                <P style="font-size:18px">Número de veces: </P>
+                <input type="number"  id="numVeces" class="tam">  
+              </div>
+          </div>
+            <P style="font-size:18px" id="nombreOperador">Nombre del efecto: </P>
+            <input type="button" class="boton" value="Aplicar" id="boton" onclick="aplicarFiltro();">
+          </div>
+       </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="img-wrap" > 
+      <!-- Imagenes resultado del procesamiento-->
+      <canvas id ="canvas2" class="imgResult" ></canvas>
+    </div>
+
+    <script type="text/javascript" src="proyecto.js"></script>
+  </body>
+</html>
